@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="60">
     <meta name="google" content="notranslate">
-    <title>Baaiermerstee Afhaal Menu</title>
+    <title>Baaiermerstee Narrowcasting</title>
     <style>
         * {
             margin: 0;
@@ -16,15 +16,32 @@
         body {
             width: 2560px;
             height: 1440px;
-            background: linear-gradient(160deg, #1a2a3a 0%, #2d4356 100%);
+            overflow: hidden;
+            cursor: none;
+            background: #1a2a3a;
             font-family: 'Arial', sans-serif;
             color: #ffffff;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
         }
 
-        /* HEADER */
+        /* ── SLIDE SYSTEEM ── */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2560px;
+            height: 1440px;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(160deg, #1a2a3a 0%, #2d4356 100%);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        /* ── GEDEELDE HEADER & FOOTER ── */
         .header {
             background: rgba(0, 0, 0, 0.35);
             padding: 28px 80px;
@@ -51,106 +68,6 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        /* CONTENT */
-        .content {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .column {
-            display: flex;
-            flex-direction: column;
-            padding: 40px 55px;
-            border-right: 3px solid rgba(249, 168, 37, 0.35);
-        }
-
-        .column:last-child {
-            border-right: none;
-        }
-
-        /* Kolombreedtes */
-        .col-snacks { flex: 1.4; }
-        .col-borrel { flex: 0.9; }
-        .col-patat  { flex: 0.95; }
-        .col-dranken { flex: 1.1; }
-
-        .section-title {
-            font-size: 54px;
-            font-weight: bold;
-            color: #f9a825;
-            border-bottom: 3px solid #f9a825;
-            padding-bottom: 14px;
-            margin-bottom: 18px;
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
-            flex-shrink: 0;
-            letter-spacing: 1px;
-        }
-
-        .section-gap {
-            margin-top: 30px;
-        }
-
-        /* Grote items (Borrelhapjes, Patat, Sauzen) */
-        .menu-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 0;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .menu-item:last-child {
-            border-bottom: none;
-        }
-
-        .item-name {
-            font-size: 44px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .item-price {
-            font-size: 46px;
-            font-weight: bold;
-            color: #f9a825;
-            white-space: nowrap;
-            margin-left: 30px;
-        }
-
-        /* Compacte items voor kolommen met veel items */
-        .menu-item-sm {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 9px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .menu-item-sm:last-child {
-            border-bottom: none;
-        }
-
-        .item-name-sm {
-            font-size: 38px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .item-price-sm {
-            font-size: 40px;
-            font-weight: bold;
-            color: #f9a825;
-            white-space: nowrap;
-            margin-left: 20px;
-        }
-
-        .section-gap {
-            height: 28px;
-            flex-shrink: 0;
-        }
-
-        /* FOOTER */
         .footer {
             background: rgba(0, 0, 0, 0.35);
             padding: 24px 80px;
@@ -169,181 +86,417 @@
             text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
         }
 
+        /* ── SLIDE 1: MENU ── */
+        .content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            padding: 40px 55px;
+            border-right: 3px solid rgba(249, 168, 37, 0.35);
+        }
+
+        .column:last-child {
+            border-right: none;
+        }
+
+        .col-snacks  { flex: 1.4; }
+        .col-borrel  { flex: 0.9; }
+        .col-patat   { flex: 0.95; }
+        .col-dranken { flex: 1.1; }
+
+        .section-title {
+            font-size: 54px;
+            font-weight: bold;
+            color: #f9a825;
+            border-bottom: 3px solid #f9a825;
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
+            letter-spacing: 1px;
+        }
+
+        .section-gap {
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .menu-item:last-child { border-bottom: none; }
+
+        .item-name {
+            font-size: 44px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .item-price {
+            font-size: 46px;
+            font-weight: bold;
+            color: #f9a825;
+            white-space: nowrap;
+            margin-left: 30px;
+        }
+
+        .menu-item-sm {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .menu-item-sm:last-child { border-bottom: none; }
+
+        .item-name-sm {
+            font-size: 38px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .item-price-sm {
+            font-size: 40px;
+            font-weight: bold;
+            color: #f9a825;
+            white-space: nowrap;
+            margin-left: 20px;
+        }
+
+        /* ── SLIDE 2: EVENEMENT ── */
+        .event-content {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            overflow: hidden;
+        }
+
+        .event-text {
+            flex: 1;
+            padding: 70px 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 3px solid rgba(249, 168, 37, 0.35);
+        }
+
+        .event-label {
+            font-size: 38px;
+            font-weight: bold;
+            color: #f9a825;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .event-title {
+            font-size: 80px;
+            font-weight: bold;
+            color: #ffffff;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .event-date {
+            font-size: 62px;
+            font-weight: bold;
+            color: #f9a825;
+            margin-bottom: 50px;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+        }
+
+        .event-description {
+            font-size: 42px;
+            color: #e0e0e0;
+            line-height: 1.55;
+            margin-bottom: 50px;
+        }
+
+        .event-prices {
+            display: flex;
+            gap: 60px;
+        }
+
+        .event-price-item {
+            background: rgba(249, 168, 37, 0.15);
+            border: 2px solid rgba(249, 168, 37, 0.5);
+            border-radius: 12px;
+            padding: 24px 44px;
+            text-align: center;
+        }
+
+        .event-price-label {
+            font-size: 34px;
+            color: #aaaaaa;
+            margin-bottom: 8px;
+        }
+
+        .event-price-value {
+            font-size: 58px;
+            font-weight: bold;
+            color: #f9a825;
+        }
+
+        .event-image {
+            flex: 1.1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .event-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+        }
+
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>BAAIERMERSTEE</h1>
-        <span class="header-sub">— Afhaal Menu —</span>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- SLIDE 1: AFHAAL MENU                          -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="slide1" class="slide active">
+        <div class="header">
+            <h1>BAAIERMERSTEE</h1>
+            <span class="header-sub">— Afhaal Menu —</span>
+        </div>
+
+        <div class="content">
+            <!-- KOL 1: SNACKS -->
+            <div class="column col-snacks">
+                <div class="section-title">Snacks</div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Frikandel</span>
+                    <span class="item-price-sm">€ 2,25</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Frikandel speciaal</span>
+                    <span class="item-price-sm">€ 2,50</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Kroket</span>
+                    <span class="item-price-sm">€ 2,25</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Boerenbrok</span>
+                    <span class="item-price-sm">€ 2,75</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Bamischijf</span>
+                    <span class="item-price-sm">€ 2,50</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Hamburger</span>
+                    <span class="item-price-sm">€ 2,25</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Broodje hamburger</span>
+                    <span class="item-price-sm">€ 2,75</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Broodje hamburger speciaal</span>
+                    <span class="item-price-sm">€ 4,00</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Kipnuggets (6 stuks)</span>
+                    <span class="item-price-sm">€ 2,50</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Kaassouflé</span>
+                    <span class="item-price-sm">€ 2,25</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Pikanto</span>
+                    <span class="item-price-sm">€ 2,50</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Kipcorn</span>
+                    <span class="item-price-sm">€ 2,50</span>
+                </div>
+            </div>
+
+            <!-- KOL 2: BORRELHAPJES -->
+            <div class="column col-borrel">
+                <div class="section-title">Borrelhapjes</div>
+                <div class="menu-item">
+                    <span class="item-name">Borrelmix (8 stuks)</span>
+                    <span class="item-price">€ 3,50</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">Bitterballen (8 stuks)</span>
+                    <span class="item-price">€ 2,75</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">Borrelmix luxe (6 stuks)</span>
+                    <span class="item-price">€ 5,50</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">Bitterballen luxe (8 stuks)</span>
+                    <span class="item-price">€ 5,50</span>
+                </div>
+            </div>
+
+            <!-- KOL 3: PATAT & SAUZEN -->
+            <div class="column col-patat">
+                <div class="section-title">Patat</div>
+                <div class="menu-item">
+                    <span class="item-name">Patat</span>
+                    <span class="item-price">€ 2,50</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">Patat speciaal</span>
+                    <span class="item-price">€ 3,00</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">Patat oorlog</span>
+                    <span class="item-price">€ 3,25</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">Gezinszak <small style="font-size:32px;color:#aaa;">(4 pers.)</small></span>
+                    <span class="item-price">€ 10,00</span>
+                </div>
+
+                <div class="section-gap"></div>
+
+                <div class="section-title">Sauzen</div>
+                <div class="menu-item">
+                    <span class="item-name">Mayo / curry / ketchup</span>
+                    <span class="item-price">€ 0,50</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">Satésaus / joppiesaus</span>
+                    <span class="item-price">€ 0,60</span>
+                </div>
+                <div class="menu-item">
+                    <span class="item-name">Bakje satésaus</span>
+                    <span class="item-price">€ 1,50</span>
+                </div>
+            </div>
+
+            <!-- KOL 4: DRANKEN -->
+            <div class="column col-dranken">
+                <div class="section-title">Dranken</div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Koffie / thee</span>
+                    <span class="item-price-sm">€ 1,50</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Fris</span>
+                    <span class="item-price-sm">€ 2,00</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Bier van de tap</span>
+                    <span class="item-price-sm">€ 2,25</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Bier uit fles</span>
+                    <span class="item-price-sm">€ 2,75</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Alcoholvrij bier</span>
+                    <span class="item-price-sm">€ 2,75</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Wijnen</span>
+                    <span class="item-price-sm">€ 3,00</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Advocaat</span>
+                    <span class="item-price-sm">€ 3,50</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Pasoa jus</span>
+                    <span class="item-price-sm">€ 4,00</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Cola beerenburg</span>
+                    <span class="item-price-sm">€ 4,00</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Sinas beerenburg</span>
+                    <span class="item-price-sm">€ 4,00</span>
+                </div>
+                <div class="menu-item-sm">
+                    <span class="item-name-sm">Cola malibu</span>
+                    <span class="item-price-sm">€ 4,00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Waar jong en oud elkaar ontmoeten!</p>
+        </div>
     </div>
 
-    <div class="content">
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- SLIDE 2: EVENEMENT NOABERSCHAP                -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="slide2" class="slide">
+        <div class="header">
+            <h1>BAAIERMERSTEE</h1>
+            <span class="header-sub">— Activiteiten —</span>
+        </div>
 
-        <!-- KOL 1: SNACKS -->
-        <div class="column col-snacks">
-            <div class="section-title">Snacks</div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Frikandel</span>
-                <span class="item-price-sm">€ 2,25</span>
+        <div class="event-content">
+            <div class="event-text">
+                <div class="event-label">Noaberschap</div>
+                <div class="event-title">Uitnodiging<br>Samen Eten</div>
+                <div class="event-date">18 februari 2026</div>
+                <div class="event-description">
+                    Elke vierde woensdag van de maand wordt er een etentje georganiseerd door Noaberschap.<br><br>
+                    Kosten voor consumpties zijn voor eigen rekening.
+                </div>
+                <div class="event-prices">
+                    <div class="event-price-item">
+                        <div class="event-price-label">Volwassenen</div>
+                        <div class="event-price-value">€ 10,00</div>
+                    </div>
+                    <div class="event-price-item">
+                        <div class="event-price-label">Kinderen</div>
+                        <div class="event-price-value">€ 6,50</div>
+                    </div>
+                </div>
             </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Frikandel speciaal</span>
-                <span class="item-price-sm">€ 2,50</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Kroket</span>
-                <span class="item-price-sm">€ 2,25</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Boerenbrok</span>
-                <span class="item-price-sm">€ 2,75</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Bamischijf</span>
-                <span class="item-price-sm">€ 2,50</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Hamburger</span>
-                <span class="item-price-sm">€ 2,25</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Broodje hamburger</span>
-                <span class="item-price-sm">€ 2,75</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Broodje hamburger speciaal</span>
-                <span class="item-price-sm">€ 4,00</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Kipnuggets (6 stuks)</span>
-                <span class="item-price-sm">€ 2,50</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Kaassouflé</span>
-                <span class="item-price-sm">€ 2,25</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Pikanto</span>
-                <span class="item-price-sm">€ 2,50</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Kipcorn</span>
-                <span class="item-price-sm">€ 2,50</span>
+
+            <div class="event-image">
+                <!-- Sla de flyer op als "uitnodiging.jpg" in dezelfde map -->
+                <img src="uitnodiging.jpg" alt="Uitnodiging Samen Eten">
             </div>
         </div>
 
-        <!-- KOL 2: BORRELHAPJES -->
-        <div class="column col-borrel">
-            <div class="section-title">Borrelhapjes</div>
-            <div class="menu-item">
-                <span class="item-name">Borrelmix (8 stuks)</span>
-                <span class="item-price">€ 3,50</span>
-            </div>
-            <div class="menu-item">
-                <span class="item-name">Bitterballen (8 stuks)</span>
-                <span class="item-price">€ 2,75</span>
-            </div>
-            <div class="menu-item">
-                <span class="item-name">Borrelmix luxe (6 stuks)</span>
-                <span class="item-price">€ 5,50</span>
-            </div>
-            <div class="menu-item">
-                <span class="item-name">Bitterballen luxe (8 stuks)</span>
-                <span class="item-price">€ 5,50</span>
-            </div>
+        <div class="footer">
+            <p>Waar jong en oud elkaar ontmoeten!</p>
         </div>
-
-        <!-- KOL 3: PATAT & SAUZEN -->
-        <div class="column col-patat">
-            <div class="section-title">Patat</div>
-            <div class="menu-item">
-                <span class="item-name">Patat</span>
-                <span class="item-price">€ 2,50</span>
-            </div>
-            <div class="menu-item">
-                <span class="item-name">Patat speciaal</span>
-                <span class="item-price">€ 3,00</span>
-            </div>
-            <div class="menu-item">
-                <span class="item-name">Patat oorlog</span>
-                <span class="item-price">€ 3,25</span>
-            </div>
-            <div class="menu-item">
-                <span class="item-name">Gezinszak <small style="font-size:32px;color:#aaa;">(4 pers.)</small></span>
-                <span class="item-price">€ 10,00</span>
-            </div>
-
-            <div class="section-gap"></div>
-
-            <div class="section-title">Sauzen</div>
-            <div class="menu-item">
-                <span class="item-name">Mayo / curry / ketchup</span>
-                <span class="item-price">€ 0,50</span>
-            </div>
-            <div class="menu-item">
-                <span class="item-name">Satésaus / joppiesaus</span>
-                <span class="item-price">€ 0,60</span>
-            </div>
-            <div class="menu-item">
-                <span class="item-name">Bakje satésaus</span>
-                <span class="item-price">€ 1,50</span>
-            </div>
-        </div>
-
-        <!-- KOL 4: DRANKEN -->
-        <div class="column col-dranken">
-            <div class="section-title">Dranken</div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Koffie / thee</span>
-                <span class="item-price-sm">€ 1,50</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Fris</span>
-                <span class="item-price-sm">€ 2,00</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Bier van de tap</span>
-                <span class="item-price-sm">€ 2,25</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Bier uit fles</span>
-                <span class="item-price-sm">€ 2,75</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Alcoholvrij bier</span>
-                <span class="item-price-sm">€ 2,75</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Wijnen</span>
-                <span class="item-price-sm">€ 3,00</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Advocaat</span>
-                <span class="item-price-sm">€ 3,50</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Pasoa jus</span>
-                <span class="item-price-sm">€ 4,00</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Cola beerenburg</span>
-                <span class="item-price-sm">€ 4,00</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Sinas beerenburg</span>
-                <span class="item-price-sm">€ 4,00</span>
-            </div>
-            <div class="menu-item-sm">
-                <span class="item-name-sm">Cola malibu</span>
-                <span class="item-price-sm">€ 4,00</span>
-            </div>
-        </div>
-
     </div>
 
-    <div class="footer">
-        <p>Waar jong en oud elkaar ontmoeten!</p>
-    </div>
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let current = 0;
+
+        setInterval(() => {
+            slides[current].classList.remove('active');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('active');
+        }, 15000);
+    </script>
+
 </body>
 </html>
