@@ -556,8 +556,9 @@ const EVENT = {
    ═══════════════════════════════════════════════════════════════ */
 const LAT = 53.4167, LON = 6.8667;
 
-/* Om de hoeveel minuten de pagina zichzelf herlaadt (1 = handig bij testen, 20 = normaal gebruik) */
-const RELOAD_MINUTES = 1;
+/* Om de hoeveel minuten de pagina op de achtergrond controleert of index.html op de server
+   is veranderd. Alleen bij een echte wijziging wordt herladen, dus geen geflits. 0 = nooit controleren. */
+const CHECK_MINUTES = 1;
 
 (function () {
     'use strict';
@@ -883,8 +884,31 @@ const RELOAD_MINUTES = 1;
     render();
     setInterval(render, mode === 'demo' ? 100 : 1000);
 
-    /* Periodiek herladen zodat nieuwe prijzen vanzelf verschijnen (RELOAD_MINUTES bovenin) */
-    if (mode === 'live') setTimeout(() => location.reload(), RELOAD_MINUTES * 60 * 1000);
+    /* ── Stil controleren op wijzigingen (CHECK_MINUTES bovenin) ──
+       Haalt index.html op de achtergrond op en vergelijkt met de versie die bij het laden gold.
+       Pas als dezelfde nieuwe versie twee keer achter elkaar wordt gezien (dus niet bij een
+       CDN-hik) wordt de pagina met een verse URL herladen. Geen wijziging = geen herlaad, geen flits. */
+    if (mode === 'live' && CHECK_MINUTES > 0) {
+        let baseline = null, pending = null;
+        const fetchSource = () =>
+            fetch(location.pathname + '?check=' + Date.now(), { cache: 'no-store' })
+                .then(r => (r.ok ? r.text() : null))
+                .catch(() => null);
+        const check = () => fetchSource().then(src => {
+            if (!src) return;                               /* offline of fout: volgende keer opnieuw */
+            if (baseline === null) { baseline = src; return; }
+            if (src === baseline) { pending = null; return; }
+            if (pending === src) {
+                const u = new URL(location.href);
+                u.searchParams.set('v', Date.now().toString(36));
+                location.replace(u.href);
+            } else {
+                pending = src;
+            }
+        });
+        check();
+        setInterval(check, CHECK_MINUTES * 60 * 1000);
+    }
 })();
 </script>
 </body>

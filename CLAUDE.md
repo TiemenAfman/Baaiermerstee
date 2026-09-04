@@ -9,7 +9,7 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 - Live: `https://tiemenafman.github.io/Baaiermerstee/`
 - Branch: `main` (GitHub Pages deployt vanaf `main`, map `/`)
 - Na elke wijziging: `git add index.html && git commit -m "..." && git push`
-- De pagina herlaadt zichzelf elke `RELOAD_MINUTES` minuten (staat nu op 1 voor het testen; zet op 20 voor normaal gebruik), zodat nieuwe prijzen vanzelf op het scherm komen
+- De pagina controleert elke `CHECK_MINUTES` minuten (nu 1) stil op de achtergrond of `index.html` op de server is veranderd en herlaadt alleen dan, dus geen geflits; `0` schakelt de controle uit
 
 ## Scherm & technische eisen
 

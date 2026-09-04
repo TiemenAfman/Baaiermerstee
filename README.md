@@ -15,7 +15,7 @@ Open `index.html`, zoek `const MENU` en pas de regels aan, bijvoorbeeld:
 ['Kipnuggets', '2,50', '6 stuks'],
 ```
 
-Commit en push naar `main`; het scherm herlaadt zichzelf (interval `RELOAD_MINUTES` bovenin het script, nu 1 minuut voor het testen, 20 voor normaal gebruik).
+Commit en push naar `main`; het scherm controleert elke minuut stil of het bestand is veranderd en herlaadt alleen dan (`CHECK_MINUTES` bovenin het script, `0` = uit).
 
 ## Testen
 
