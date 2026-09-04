@@ -15,12 +15,13 @@ Open `index.html`, zoek `const MENU` en pas de regels aan, bijvoorbeeld:
 ['Kipnuggets', '2,50', '6 stuks'],
 ```
 
-Commit en push naar `main`; het scherm herlaadt zichzelf binnen 20 minuten.
+Commit en push naar `main`; het scherm herlaadt zichzelf (interval `RELOAD_MINUTES` bovenin het script, nu 1 minuut voor het testen, 20 voor normaal gebruik).
 
 ## Testen
 
 - `index.html?t=21:30` — vaste tijd
 - `index.html?demo` — een etmaal in anderhalve minuut
-- `index.html?rotate=90` — draaien als de speler zelf geen portrait kan
+- `index.html?rotate=270` — vaste draaiing als het beeld ondersteboven staat (standaard herkent de pagina de oriëntatie zelf)
+- `index.html?debug` — toont viewport en schaal op het scherm bij het instellen van het display
 
 Zie `CLAUDE.md` voor de opbouw van het bestand en `wifi-setup.md` voor de Raspberry Pi-variant.

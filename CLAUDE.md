@@ -9,11 +9,12 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 - Live: `https://tiemenafman.github.io/Baaiermerstee/`
 - Branch: `main` (GitHub Pages deployt vanaf `main`, map `/`)
 - Na elke wijziging: `git add index.html && git commit -m "..." && git push`
-- De pagina herlaadt zichzelf elke 20 minuten, zodat nieuwe prijzen vanzelf op het scherm komen
+- De pagina herlaadt zichzelf elke `RELOAD_MINUTES` minuten (staat nu op 1 voor het testen; zet op 20 voor normaal gebruik), zodat nieuwe prijzen vanzelf op het scherm komen
 
 ## Scherm & technische eisen
 
-- Ontwerpresolutie: **2160 × 3840 px** (4K portrait), vaste `#stage` die met `transform: scale()` op elk scherm past
+- Ontwerpresolutie: **2160 × 3840 px** (4K portrait), vaste `#stage` die met `transform: scale()` op elk scherm past en zichzelf 90° draait als het beeldvlak liggend is
+- Geen flex `gap` gebruiken (oudere Android-WebViews op signage-SoCs kennen dat niet); marges in plaats daarvan
 - Kiosk: `overflow: hidden`, `cursor: none`, `<meta name="google" content="notranslate">`
 - Geen frameworks of build-stappen. Enige externe bron: Google Fonts (Young Serif + Atkinson Hyperlegible) met systeem-fallbacks
 - Lettergroottes zijn afgestemd op leesbaarheid vanaf ~3 meter — **niet verkleinen** (items 52 px, prijzen 54 px)
@@ -24,7 +25,9 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 |---|---|
 | `?t=21:30` of `?t=2026-12-21T16:00` | Vaste tijd (zon, maan, lucht en klok) |
 | `?demo` | Een etmaal in 96 seconden, om de luchtovergangen te bekijken |
-| `?rotate=90` / `?rotate=270` | Pagina zelf draaien als de speler geen portrait kan uitsturen |
+| `?rotate=auto` (standaard) | Staand beeldvlak → rechtop; liggend beeldvlak → 90° gedraaid zodat het scherm vult (op Windows/Mac blijft de pagina rechtop) |
+| `?rotate=0` / `90` / `180` / `270` | Vaste draaiing, bijv. `270` als het beeld ondersteboven staat |
+| `?debug` | Toont viewport, schaal en user-agent op het scherm, handig bij het instellen van het display |
 
 ## Architectuur van index.html
 
