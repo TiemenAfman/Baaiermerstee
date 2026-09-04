@@ -4,49 +4,50 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Narrowcasting display pagina voor dorpshuis Baaiermerstee. Één enkel HTML-bestand (`index.html`) dat op een kiosk-scherm draait.
+Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één enkel HTML-bestand (`index.html`) dat op een iiyama LH4375UHS in **portrait** draait en via GitHub Pages wordt gehost.
 
-## Deployment
-
-- Bestand: `index.html` (+ eventuele afbeeldingen in dezelfde map)
-- GitHub repo: `https://github.com/TiemenAfman/Baaiermerstee` — branch `main`
+- Live: `https://tiemenafman.github.io/Baaiermerstee/`
+- Branch: `main` (GitHub Pages deployt vanaf `main`, map `/`)
 - Na elke wijziging: `git add index.html && git commit -m "..." && git push`
-- De pagina ververst zichzelf elke 60 seconden via `<meta http-equiv="refresh">`
+- De pagina herlaadt zichzelf elke 20 minuten, zodat nieuwe prijzen vanzelf op het scherm komen
 
 ## Scherm & technische eisen
 
-- Resolutie: **2560×1440px** (QHD), vaste afmeting op `body`
-- `overflow: hidden` en `cursor: none` — kiosk-omgeving, geen scrollbalk, geen cursor
-- `<meta name="google" content="notranslate">` — geen automatische vertaling
-- Geen externe dependencies, frameworks of build-stappen — puur HTML/CSS/JS
+- Ontwerpresolutie: **2160 × 3840 px** (4K portrait), vaste `#stage` die met `transform: scale()` op elk scherm past
+- Kiosk: `overflow: hidden`, `cursor: none`, `<meta name="google" content="notranslate">`
+- Geen frameworks of build-stappen. Enige externe bron: Google Fonts (Young Serif + Atkinson Hyperlegible) met systeem-fallbacks
+- Lettergroottes zijn afgestemd op leesbaarheid vanaf ~3 meter — **niet verkleinen** (items 52 px, prijzen 54 px)
+
+## URL-parameters (voor testen en installatie)
+
+| Parameter | Werking |
+|---|---|
+| `?t=21:30` of `?t=2026-12-21T16:00` | Vaste tijd (zon, maan, lucht en klok) |
+| `?demo` | Een etmaal in 96 seconden, om de luchtovergangen te bekijken |
+| `?rotate=90` / `?rotate=270` | Pagina zelf draaien als de speler geen portrait kan uitsturen |
 
 ## Architectuur van index.html
 
-Het bestand bevat een **slide-systeem** met twee slides die via JavaScript om de 20 seconden wisselen met een 1-seconde CSS fade (`transition: opacity 1s ease`):
+1. **Lucht** (`.sky`, 0–760 px): volgt de echte zonnestand boven Bierum (53.4167 N, 6.8667 E) met een SunCalc-achtige berekening in de pagina.
+   - Zon en maan staan op hun echte azimut/hoogte (azimut 40°–320° → volle breedte, hoogte 0°–62° → horizon tot boven)
+   - Luchtkleuren, bordkleur en zonkleur worden geïnterpoleerd uit de tabel `SKY` (per zonshoogte in graden)
+   - Sterren verschijnen onder −3°, maanfase wordt getekend met een SVG-pad
+   - Silhouet van Bierum (kerk met steunbeer, boerderijen, bomen, dijk, turbines Eemshaven) als SVG met `fill: var(--ground-top)`, zodat het naadloos in het bord overloopt
+   - Klok, datum en zon-op/zon-onder rechtsboven
+2. **Titelband** (`.band`, 760–980 px): "Baaiermerstee" in Young Serif + "Afhaalmenu"
+3. **Menubord** (`.board`, 980–3660 px): twee kolommen met kaarten, opgebouwd uit `MENU` in het script
+   - Kaarten groeien naar rato van hun aantal regels (`flex-grow`), zodat beide kolommen gelijk uitkomen
+   - `fitRows()` verkleint te lange namen tot ze op één regel passen
+   - `EVENT` = de Noaberschap-kaart onder in de linkerkolom (`show: false` verbergt hem)
+4. **Voet** (`.foot`): "Waar jong en oud elkaar ontmoeten!"
 
-- **Slide 1** (`#slide1`): Afhaal menu in 4 kolommen (Snacks, Borrelhapjes, Patat+Sauzen, Dranken)
-- **Slide 2** (`#slide2`): Evenement-slide (Noaberschap etentje) met tekst links en `sameneten.png` rechts
+## Menu aanpassen
 
-Beide slides delen dezelfde `.header` en `.footer` HTML-structuur en CSS-klassen.
-
-### CSS-klassen menu (Slide 1)
-
-| Klasse | Gebruik |
-|---|---|
-| `.menu-item` + `.item-name` / `.item-price` | Reguliere items (Borrelhapjes, Patat, Sauzen) |
-| `.menu-item-sm` + `.item-name-sm` / `.item-price-sm` | Compacte items voor kolommen met veel regels (Snacks, Dranken) |
-| `.section-title` | Categorie-koptekst in geel (`#f9a825`) |
-| `.section-gap` | Verticale ruimte tussen twee secties in één kolom |
-| `.col-snacks / .col-borrel / .col-patat / .col-dranken` | Kolombreedtes via `flex` |
+Alles staat in het `MENU`-object bovenin `<script>`. Een item is `[naam, prijs]` of `[naam, prijs, toelichting]`, bijvoorbeeld `['Kipnuggets', '2,50', '6 stuks']`. Nieuwe secties: een object `{ title, items }` toevoegen aan `left` of `right`; de kolomhoogte verdeelt zichzelf.
 
 ## Ontwerprichtlijnen
 
-- Achtergrond: donker (`#1a2a3a → #2d4356`)
-- Accentkleur: geel/oranje `#f9a825` (prijzen, titels, borders)
-- Lettergroottes zijn afgestemd op leesbaarheid vanaf ~3 meter afstand — **niet verkleinen**
-- Afbeeldingen opslaan in dezelfde map als `index.html` en refereren via relatief pad
-
-## Nieuwe slides toevoegen
-
-1. Voeg een `<div id="slideN" class="slide">` toe met dezelfde `.header` / `.footer` structuur
-2. Het JavaScript-rotatiescript pikt nieuwe slides automatisch op via `querySelectorAll('.slide')`
+- Accentkleur: geel `#f9a825` (prijzen, koppen, zon, kaartranden)
+- Tekst: warm gebroken wit `#f6f0e6`
+- De bordkleur (`--ground-top` / `--ground-bottom`) wordt door JS gezet en wordt donkerder naarmate het buiten donkerder is — niet hardcoden
+- Geen zware effecten (`backdrop-filter`, grote blur-filters): de speler is een signage-SoC of Raspberry Pi
