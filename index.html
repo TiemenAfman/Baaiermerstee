@@ -105,7 +105,7 @@
             left: 0;
             bottom: -1px;
             width: 2160px;
-            height: 150px;
+            height: 300px;
             color: var(--ground-top);
             fill: currentColor;
         }
@@ -520,7 +520,7 @@ const MENU = {
             ['Koffie / thee', '1,50'],
             ['Fris', '2,00'],
             ['Hertog Jan van de tap', '2,25'],
-            ['Texels bier van de tap', '3,00'],
+            ['Texelse Skuumkoppe van de tap', '3,00'],
             ['Bier uit fles', '2,75'],
             ['Alcoholvrij bier', '2,75'],
             ['Wijnen', '3,00'],
@@ -531,6 +531,15 @@ const MENU = {
             ['Cola malibu', '4,00'],
         ]},
     ],
+};
+
+/* Snack-van-de-maand-kaart bovenin de linkerkolom. Zet show op false om te verbergen. */
+const SNACK_VAN_DE_MAAND = {
+    show: true,
+    label: 'Snack van de maand',
+    title: 'Bicky burger',
+    description: 'Belgische klassieker met pikante kaassaus',
+    price: '3,50',
 };
 
 /* Activiteit-kaart onder in de linkerkolom. Zet show op false om te verbergen. */
@@ -602,7 +611,17 @@ const CHECK_MINUTES = 1;
         </section>`;
     }
 
+    function snackHTML(sp) {
+        return `<section class="card event">
+            <div class="label">${esc(sp.label)}</div>
+            <h2>${esc(sp.title)}</h2>
+            ${sp.description ? `<div class="when">${esc(sp.description)}</div>` : ''}
+            <div class="prices"><span class="pill"><b>€ ${esc(sp.price)}</b></span></div>
+        </section>`;
+    }
+
     document.getElementById('colLeft').innerHTML =
+        (SNACK_VAN_DE_MAAND.show ? snackHTML(SNACK_VAN_DE_MAAND) : '') +
         MENU.left.map(cardHTML).join('') + (EVENT.show ? eventHTML(EVENT) : '');
     document.getElementById('colRight').innerHTML = MENU.right.map(cardHTML).join('');
     fitRows();
