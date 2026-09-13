@@ -11,15 +11,28 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
-            width: 1920px;
-            height: 1080px;
-            background: linear-gradient(160deg, #1a2a3a 0%, #2d4356 100%);
+            background: #12202e;
             font-family: 'Arial', sans-serif;
             color: #ffffff;
             overflow: hidden;
             display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #screen {
+            width: 1920px;
+            height: 1080px;
+            background: linear-gradient(160deg, #1a2a3a 0%, #2d4356 100%);
+            overflow: hidden;
+            display: flex;
             flex-direction: column;
+            flex-shrink: 0;
         }
 
         /* HEADER */
@@ -103,13 +116,13 @@
         }
 
         .item-name {
-            font-size: 44px;
+            font-size: 48px;
             font-weight: 600;
             color: #ffffff;
         }
 
         .item-price {
-            font-size: 46px;
+            font-size: 50px;
             font-weight: bold;
             color: #f9a825;
             white-space: nowrap;
@@ -130,13 +143,13 @@
         }
 
         .item-name-sm {
-            font-size: 38px;
+            font-size: 42px;
             font-weight: 600;
             color: #ffffff;
         }
 
         .item-price-sm {
-            font-size: 40px;
+            font-size: 44px;
             font-weight: bold;
             color: #f9a825;
             white-space: nowrap;
@@ -171,6 +184,7 @@
     </style>
 </head>
 <body>
+    <div id="screen">
     <div class="header">
         <h1>BAAIERMERSTEE</h1>
         <span class="header-sub">— Afhaal Menu —</span>
@@ -310,7 +324,7 @@
             </div>
             <div class="menu-item-sm">
                 <span class="item-name-sm">Alcoholvrij bier</span>
-                <span class="item-price-sm">€ 2,75</span>
+                <span class="item-price-sm">€ 3,00</span>
             </div>
             <div class="menu-item-sm">
                 <span class="item-name-sm">Wijnen</span>
@@ -343,5 +357,15 @@
     <div class="footer">
         <p>Waar jong en oud elkaar ontmoeten!</p>
     </div>
+    </div>
+
+    <script>
+        function scaleScreen() {
+            var scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            document.getElementById('screen').style.transform = 'scale(' + scale + ')';
+        }
+        window.addEventListener('resize', scaleScreen);
+        scaleScreen();
+    </script>
 </body>
 </html>
