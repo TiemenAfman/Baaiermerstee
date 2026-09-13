@@ -231,7 +231,7 @@
         }
 
         .row .n {
-            font-size: 52px;
+            font-size: 56px;
             line-height: 1.15;
             white-space: nowrap;   /* lange namen worden door JS iets verkleind */
             min-width: 0;
@@ -253,7 +253,7 @@
 
         .row .p {
             font-family: var(--serif);
-            font-size: 54px;
+            font-size: 58px;
             line-height: 1;
             font-weight: 400;
             color: var(--accent);
@@ -523,10 +523,10 @@ const MENU = {
             ['Hertog Jan van de tap', '2,50'],
             ['Texelse Skuumkoppe van de tap', '3,00'],
             ['Bier uit fles', '3,00'],
-            ['Alcoholvrij bier', '2,75'],
+            ['Alcoholvrij bier', '3,00'],
             ['Wijnen', '3,00'],
             ['Bozu', '4,00'],
-            ['Pasoa jus', '4,00'],
+            ['Passoa jus', '4,00'],
             ['Cola beerenburg', '4,00'],
             ['Sinas beerenburg', '4,00'],
             ['Cola malibu', '4,00'],
@@ -593,7 +593,7 @@ const CHECK_MINUTES = 1;
         document.querySelectorAll('.row').forEach(row => {
             const n = row.querySelector('.n'), p = row.querySelector('.p');
             const avail = row.clientWidth - p.offsetWidth - 80;
-            let fs = 52;
+            let fs = 56;
             n.style.fontSize = '';
             while (n.scrollWidth > avail && fs > 36) { fs -= 1; n.style.fontSize = fs + 'px'; }
             n.style.whiteSpace = n.scrollWidth > avail ? 'normal' : '';
