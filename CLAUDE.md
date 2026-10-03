@@ -48,6 +48,10 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 
 Alles staat in het `MENU`-object bovenin `<script>`. Een item is `[naam, prijs]` of `[naam, prijs, toelichting]`, bijvoorbeeld `['Kipnuggets', '2,50', '6 stuks']`. Nieuwe secties: een object `{ title, items }` toevoegen aan `left` of `right`; de kolomhoogte verdeelt zichzelf.
 
+## Halloween-thema (branch `halloween`)
+
+Op deze branch wijkt het ontwerp af: accent pompoenoranje `#ff8c21`, titel in Creepster (Google Fonts), paarse `SKY`-tabel, en in de lucht kale bomen, een kerkhofje, ramen die 's avonds oplichten (`--night`), vleermuizen, een heks die langs de maan vliegt, grondmist en pompoenen (`--glow`). Spinnenwebben en een spin hangen in de bovenste kaarten. Live zetten = mergen naar `main`; daarna terugdraaien met een revert.
+
 ## Ontwerprichtlijnen
 
 - Accentkleur: geel `#f9a825` (prijzen, koppen, zon, kaartranden)

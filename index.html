@@ -8,21 +8,27 @@
     <title>Baaiermerstee · Menukaart</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Young+Serif&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Creepster&family=Young+Serif&display=swap" rel="stylesheet">
     <style>
         /* ─────────────────────────────────────────────────────────────
            Baaiermerstee afhaalmenu · iiyama LH4375UHS in portrait
            Vaste stage van 2160 × 3840 px, wordt geschaald naar het scherm.
            De lucht volgt de echte zonnestand boven Bierum (53.42 N, 6.87 E).
+           HALLOWEEN-THEMA: pompoenoranje accent, paarse lucht, vleermuizen,
+           een heks die langs de maan vliegt, pompoenen, kale bomen en spinnenwebben.
            ───────────────────────────────────────────────────────────── */
         :root {
-            --accent: #f9a825;                 /* huisstijl-geel: prijzen, koppen, zon */
+            --accent: #ff8c21;                 /* pompoenoranje: prijzen, koppen, kaartranden */
+            --spook: #c7a4ff;                  /* heksenpaars voor kleine accenten */
             --ink: #f6f0e6;                    /* warm gebroken wit */
             --muted: rgba(246, 240, 230, 0.62);
-            --ground-top: #3c4e5a;             /* wordt live gezet door JS */
-            --ground-bottom: #27353e;
+            --ground-top: #3a2f4a;             /* wordt live gezet door JS */
+            --ground-bottom: #231c30;
+            --night: 0;                        /* 0 = dag, 1 = nacht; wordt live gezet door JS */
+            --glow: 0.25;                      /* gloed van de pompoenen, idem */
             --serif: 'Young Serif', Georgia, 'Times New Roman', serif;
             --sans: 'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif;
+            --spooky: 'Creepster', 'Young Serif', Georgia, serif;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,7 +64,7 @@
             width: 2160px;
             height: 380px;
             overflow: hidden;
-            background: linear-gradient(to bottom, #2c6fb5 0%, #7db3dd 55%, #b6daef 100%);
+            background: linear-gradient(to bottom, #46508a 0%, #8890b8 55%, #c8b8b8 100%);
         }
 
         .stars {
@@ -77,18 +83,19 @@
             to   { opacity: 1; }
         }
 
+        /* Halloween: een flinke oogstmaan (wel op zijn echte plek en in zijn echte fase) */
         .moon {
             position: absolute;
             left: 0; top: 0;
-            width: 70px;
-            height: 70px;
+            width: 104px;
+            height: 104px;
             opacity: 0;
             will-change: transform, opacity;
         }
 
-        .moon .disc  { fill: #f4efe0; }
-        .moon .shade { fill: #f4efe0; opacity: 0.12; }
-        .moon svg    { filter: drop-shadow(0 0 22px rgba(244, 239, 224, 0.45)); }
+        .moon .disc  { fill: #fbe8c4; }
+        .moon .shade { fill: #fbe8c4; opacity: 0.12; }
+        .moon svg    { filter: drop-shadow(0 0 22px rgba(251, 214, 150, 0.5)); }
 
         .sun {
             position: absolute;
@@ -115,6 +122,96 @@
         .rotor.r3 { animation-duration: 6.4s; animation-delay: -1.4s; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── HALLOWEEN in de lucht ─────────────────────────────── */
+        /* Verlichte ramen: gaan aan als het donker wordt (--night) */
+        .land .lit { fill: #ffb347; opacity: var(--night); }
+
+        /* Vleermuizen: vliegen (translateX), deinen (translateY) en klapperen (scaleY) */
+        .bat {
+            position: absolute;
+            left: 0;
+            animation: fly linear infinite;
+            will-change: transform;
+        }
+        .bat .bob { animation: bob ease-in-out infinite alternate; }
+        .bat svg {
+            display: block;
+            fill: #120a1a;
+            stroke: rgba(199, 164, 255, 0.55);  /* randlicht: zichtbaar tegen de nachtlucht */
+            stroke-width: 2.5;
+            animation: flap 0.32s ease-in-out infinite alternate;
+            transform-origin: 50% 40%;
+        }
+        @keyframes fly  { from { transform: translateX(-160px); } to { transform: translateX(2320px); } }
+        @keyframes bob  { from { transform: translateY(-16px); } to { transform: translateY(16px); } }
+        @keyframes flap { from { transform: scaleY(1); } to { transform: scaleY(0.3); } }
+
+        /* De heks: vliegt eens in de twee minuten voorbij, op de hoogte van de maan (JS zet de baan) */
+        .witch-lane {
+            position: absolute;
+            left: 0; top: 0;
+            transition: transform 6s ease-in-out;
+        }
+        .witch {
+            animation: witch 120s linear infinite;
+            animation-delay: -104s;            /* eerste vlucht ±15 s na het laden */
+            transform: translateX(-340px);
+            will-change: transform;
+        }
+        .witch .bob { animation: bob 2.6s ease-in-out infinite alternate; }
+        .witch svg  {
+            display: block;
+            width: 250px;
+            height: 150px;
+            fill: #120a1a;
+            stroke: rgba(199, 164, 255, 0.5);
+            stroke-width: 1.6;
+        }
+        @keyframes witch {
+            0%   { transform: translateX(-340px); }
+            15%  { transform: translateX(2200px); }
+            100% { transform: translateX(2200px); }
+        }
+
+        /* Grondmist die langzaam over het dorp trekt */
+        .mist {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 3240px;
+            height: 170px;
+            background:
+                radial-gradient(ellipse 520px 60px at 12% 78%, rgba(214, 196, 255, 0.26), rgba(214, 196, 255, 0) 100%),
+                radial-gradient(ellipse 640px 70px at 38% 86%, rgba(214, 196, 255, 0.22), rgba(214, 196, 255, 0) 100%),
+                radial-gradient(ellipse 480px 54px at 61% 80%, rgba(214, 196, 255, 0.24), rgba(214, 196, 255, 0) 100%),
+                radial-gradient(ellipse 600px 66px at 86% 84%, rgba(214, 196, 255, 0.22), rgba(214, 196, 255, 0) 100%);
+            animation: drift 90s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+        @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-1080px); } }
+
+        /* Pompoenen met een flakkerend kaarsje */
+        .pk { position: absolute; }
+        .pk svg { position: relative; display: block; width: 100%; height: 100%; }
+        .pk .glow {
+            position: absolute;
+            left: -90%; top: -90%;
+            width: 280%; height: 280%;
+            opacity: var(--glow);              /* door JS gezet: overdag zwak, 's avonds fel */
+        }
+        .pk .glow div {
+            width: 100%; height: 100%;
+            background: radial-gradient(circle closest-side, rgba(255, 150, 40, 0.55), rgba(255, 150, 40, 0.18) 45%, rgba(255, 150, 40, 0) 100%);
+            animation: flicker 2.3s ease-in-out infinite alternate;
+        }
+        @keyframes flicker {
+            0%   { opacity: 1; }
+            30%  { opacity: 0.72; }
+            55%  { opacity: 0.95; }
+            80%  { opacity: 0.64; }
+            100% { opacity: 0.9; }
+        }
 
         .clock {
             position: absolute;
@@ -154,13 +251,13 @@
         }
 
         .band h1 {
-            font-family: var(--serif);
+            font-family: var(--spooky);
             font-weight: 400;
-            font-size: 150px;
+            font-size: 176px;
             line-height: 1;
-            letter-spacing: -0.012em;
-            color: var(--ink);
-            text-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+            letter-spacing: 0.02em;
+            color: var(--accent);
+            text-shadow: 0 4px 0 rgba(0, 0, 0, 0.35), 0 0 60px rgba(255, 140, 33, 0.25);
         }
 
         .band .eyebrow {
@@ -168,7 +265,7 @@
             font-weight: 700;
             letter-spacing: 0.22em;
             text-transform: uppercase;
-            color: var(--accent);
+            color: var(--spook);
             padding-top: 18px;
         }
 
@@ -198,10 +295,13 @@
         /* Kaarten groeien naar rato van hun aantal regels (flex-grow via JS),
            zodat de witruimte tussen regels in beide kolommen gelijk uitkomt. */
         .card {
+            position: relative;
             display: flex;
             flex-direction: column;
-            background: rgba(5, 10, 18, 0.40);
-            border: 2px solid rgba(249, 168, 37, 0.20);
+            background-color: rgba(14, 5, 22, 0.42);
+            background-repeat: no-repeat;
+            background-position: top right;    /* spinnenweb (JS) in de hoek */
+            border: 2px solid rgba(255, 140, 33, 0.20);
             border-radius: 32px;
             padding: 38px 46px 30px;
         }
@@ -221,7 +321,7 @@
             color: var(--accent);
             padding-bottom: 16px;
             margin-bottom: 14px;
-            border-bottom: 3px solid rgba(249, 168, 37, 0.38);
+            border-bottom: 3px solid rgba(255, 140, 33, 0.38);
         }
 
         .row {
@@ -261,10 +361,37 @@
             white-space: nowrap;
         }
 
+        /* Spin aan een draadje onder het web van de Patat-kaart: draad rekt mee (scaleY), spin zakt mee */
+        .card.spider::before,
+        .card.spider::after {
+            content: '';
+            position: absolute;
+            animation: 4.2s ease-in-out infinite alternate;
+        }
+        .card.spider::before {
+            right: 98px;
+            top: 0;
+            width: 2px;
+            height: 52px;
+            background: rgba(246, 240, 230, 0.45);
+            transform-origin: 50% 0;
+            animation-name: thread;
+        }
+        .card.spider::after {
+            right: 69px;
+            top: 40px;
+            width: 60px;
+            height: 60px;
+            background: var(--spider) no-repeat center / contain;
+            animation-name: dangle;
+        }
+        @keyframes thread { from { transform: scaleY(1); }       to { transform: scaleY(1.3); } }
+        @keyframes dangle { from { transform: translateY(0); }  to { transform: translateY(15.6px); } }
+
         /* Activiteit-kaart (Noaberschap) */
         .card.event {
-            background: rgba(249, 168, 37, 0.10);
-            border-color: rgba(249, 168, 37, 0.5);
+            background-color: rgba(255, 140, 33, 0.10);
+            border-color: rgba(255, 140, 33, 0.5);
             padding: 40px 46px 42px;
         }
 
@@ -302,7 +429,7 @@
             margin: 18px 18px 0 0;
             padding: 14px 26px;
             border-radius: 999px;
-            border: 2px solid rgba(249, 168, 37, 0.55);
+            border: 2px solid rgba(255, 140, 33, 0.55);
             background: rgba(5, 10, 18, 0.28);
             font-size: 38px;
             line-height: 1;
@@ -359,10 +486,15 @@
             font-size: 58px;
             line-height: 1;
             color: rgba(246, 240, 230, 0.9);
+            margin: 0 44px;
         }
 
+        .foot .pk { position: relative; width: 104px; height: 96px; }
+
         @media (prefers-reduced-motion: reduce) {
-            .rotor, .stars .tw { animation: none; }
+            .rotor, .stars .tw, .bat, .bat .bob, .bat svg, .witch .bob, .mist, .pk .glow div,
+            .card.spider::before, .card.spider::after { animation: none; }
+            .witch { display: none; }
         }
 
         ::-webkit-scrollbar { display: none; }
@@ -415,13 +547,8 @@
             </g>
             <!-- wierde -->
             <path d="M300,300 C500,296 650,262 830,258 C1010,254 1180,290 1400,300 Z"/>
-            <!-- bomen links -->
-            <rect x="165" y="250" width="10" height="50"/>
-            <rect x="235" y="232" width="12" height="68"/>
-            <rect x="315" y="248" width="10" height="52"/>
-            <circle cx="170" cy="250" r="40"/>
-            <circle cx="241" cy="230" r="54"/>
-            <circle cx="320" cy="247" r="44"/>
+            <!-- kale Halloween-bomen links en rechts van de kerk: getekend door JS (buildTrees) -->
+            <g id="trees" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></g>
             <!-- boerderij 1: kop-hals-romp -->
             <path d="M424,300 L424,244 L449,214 L474,244 L474,300 Z"/>
             <rect x="441" y="208" width="8" height="16"/>
@@ -436,22 +563,61 @@
             <path d="M902,262 L902,206 L1082,206 L1082,262 Z"/>
             <path d="M894,208 L992,142 L1090,208 Z"/>
             <path d="M700,300 L700,262 L1100,262 L1100,300 Z"/>
-            <!-- bomen rechts van de kerk -->
-            <rect x="1125" y="244" width="10" height="56"/>
-            <rect x="1186" y="228" width="12" height="72"/>
-            <rect x="1257" y="240" width="10" height="60"/>
-            <rect x="1317" y="252" width="10" height="48"/>
-            <circle cx="1130" cy="244" r="36"/>
-            <circle cx="1192" cy="226" r="48"/>
-            <circle cx="1262" cy="240" r="42"/>
-            <circle cx="1322" cy="252" r="32"/>
+            <!-- kerkhof bij de Sebastiaankerk -->
+            <path d="M1144,300 L1144,274 A12,12 0 0 1 1168,274 L1168,300 Z"/>
+            <rect x="1222" y="252" width="8" height="48"/>
+            <rect x="1212" y="263" width="28" height="7"/>
+            <path d="M1276,300 L1276,279 A13,13 0 0 1 1302,279 L1302,300 Z"/>
+            <path d="M1340,300 L1340,282 A10,10 0 0 1 1360,282 L1360,300 Z" transform="rotate(-8 1350 300)"/>
             <!-- boerderij 2 -->
             <path d="M1400,300 L1400,242 L1512,160 L1624,242 L1624,300 Z"/>
             <path d="M1624,300 L1624,256 L1668,222 L1712,256 L1712,300 Z"/>
             <rect x="1690" y="220" width="8" height="18"/>
             <!-- grondlijn -->
             <rect x="0" y="297" width="2160" height="4"/>
+            <!-- ramen die 's avonds oplichten -->
+            <g class="lit">
+                <rect x="434" y="260" width="10" height="15"/>
+                <rect x="454" y="260" width="10" height="15"/>
+                <circle cx="610" cy="206" r="7"/>
+                <path d="M853,152 L853,130 Q862,116 871,130 L871,152 Z"/>
+                <path d="M926,248 L926,230 Q932,221 938,230 L938,248 Z"/>
+                <path d="M972,248 L972,230 Q978,221 984,230 L984,248 Z"/>
+                <path d="M1018,248 L1018,230 Q1024,221 1030,230 L1030,248 Z"/>
+                <rect x="1438" y="262" width="12" height="16"/>
+                <rect x="1468" y="262" width="12" height="16"/>
+                <rect x="1562" y="262" width="12" height="16"/>
+                <circle cx="1512" cy="206" r="8"/>
+                <rect x="1662" y="266" width="10" height="14"/>
+            </g>
         </svg>
+
+        <!-- vleermuizen (JS), de heks, grondmist en pompoenen (JS) -->
+        <div id="bats"></div>
+        <div class="witch-lane" id="witchLane">
+            <div class="witch"><div class="bob">
+                <svg viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
+                    <!-- bezem -->
+                    <path d="M30,116 L238,96 L240,101 L31,121 Z"/>
+                    <path d="M60,113 C42,103 18,97 2,101 C12,109 10,121 4,133 C20,127 42,127 62,121 Z"/>
+                    <!-- cape, lijf, arm, been -->
+                    <path d="M146,58 C118,54 90,62 66,86 C80,84 86,90 84,98 C94,92 104,96 108,104 C116,98 126,100 132,106 Z"/>
+                    <path d="M118,108 C120,88 130,66 146,58 C160,54 170,64 168,78 C166,90 162,100 160,106 Z"/>
+                    <path d="M160,72 C172,78 182,86 193,95 L189,100 C178,93 166,87 155,83 Z"/>
+                    <circle cx="192" cy="97" r="4.5"/>
+                    <path d="M148,104 C162,108 172,116 177,124 L188,126 C191,129 187,132 180,131 L168,131 C163,122 152,115 138,111 Z"/>
+                    <!-- hoofd, neus, kin, haren, hoed -->
+                    <circle cx="160" cy="47" r="11"/>
+                    <path d="M168,44 L182,51 L168,53 Z"/>
+                    <path d="M162,55 L172,62 L158,57 Z"/>
+                    <path d="M151,40 C136,45 127,56 120,70 C133,61 141,58 151,55 Z"/>
+                    <path d="M132,39 C148,31 174,28 192,34 C175,39 150,41 132,39 Z"/>
+                    <path d="M147,36 L176,32 C170,21 162,12 151,6 C141,1 132,3 125,10 C138,10 146,19 147,36 Z"/>
+                </svg>
+            </div></div>
+        </div>
+        <div class="mist"></div>
+        <div id="pumpkins"></div>
 
         <div class="clock">
             <div class="time" id="time">--:--</div>
@@ -472,7 +638,9 @@
     </main>
 
     <footer class="foot">
+        <div class="pk"></div>
         <p>Waar jong en oud elkaar ontmoeten!</p>
+        <div class="pk"></div>
     </footer>
 </div>
 
@@ -575,6 +743,7 @@ const CHECK_MINUTES = 1;
     const starsEl = document.getElementById('stars');
     const timeEl = document.getElementById('time');
     const dateEl = document.getElementById('date');
+    const witchLane = document.getElementById('witchLane');
 
     /* ── Menu opbouwen ─────────────────────────────────────────── */
     function esc(s) {
@@ -627,6 +796,43 @@ const CHECK_MINUTES = 1;
     document.getElementById('colRight').innerHTML = MENU.right.map(cardHTML).join('');
     fitRows();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitRows);
+
+    /* ── Halloween: spinnenwebben in de hoek van de bovenste kaarten, spin bij de Patat ── */
+    const svgURL = svg => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+
+    function webSVG(S) {
+        /* draden vanuit de hoek rechtsboven, ringen die naar de hoek toe doorzakken */
+        const angles = [2, 17, 33, 50, 67, 88].map(a => a * Math.PI / 180);
+        const pt = (a, r) => [S - Math.cos(a) * r, Math.sin(a) * r];
+        let d = '';
+        angles.forEach(a => { const [x, y] = pt(a, S * 0.98); d += `M${S},0 L${x.toFixed(1)},${y.toFixed(1)} `; });
+        [0.16, 0.3, 0.45, 0.6, 0.76, 0.9].forEach(f => {
+            const r = S * f;
+            for (let i = 0; i < angles.length - 1; i++) {
+                const [x1, y1] = pt(angles[i], r), [x2, y2] = pt(angles[i + 1], r);
+                const [cx, cy] = pt((angles[i] + angles[i + 1]) / 2, r * 0.8);
+                d += `M${x1.toFixed(1)},${y1.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} `;
+            }
+        });
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}"><path d="${d}" fill="none" stroke="rgba(246,240,230,0.34)" stroke-width="2"/></svg>`;
+    }
+
+    const SPIDER = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">'
+        + '<g fill="none" stroke="#e8def7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">'
+        + '<path d="M18,14 L9,7 L4,12 M16,19 L6,16 L1,22 M17,24 L7,27 L3,34 M19,28 L11,35 L10,43"/>'
+        + '<path d="M30,14 L39,7 L44,12 M32,19 L42,16 L47,22 M31,24 L41,27 L45,34 M29,28 L37,35 L38,43"/></g>'
+        + '<circle cx="24" cy="18" r="9" fill="#e8def7"/><circle cx="24" cy="31" r="5.5" fill="#e8def7"/>'
+        + '<circle cx="22" cy="32.5" r="1.4" fill="#ff8c21"/><circle cx="26" cy="32.5" r="1.4" fill="#ff8c21"/></svg>';
+
+    const web = svgURL(webSVG(170));
+    document.querySelectorAll('#colLeft > .card:first-child, #colRight > .card:first-child').forEach(c => {
+        c.style.backgroundImage = web;
+    });
+    const spiderCard = document.querySelector('#colRight > .card:first-child');
+    if (spiderCard) {
+        spiderCard.classList.add('spider');
+        spiderCard.style.setProperty('--spider', svgURL(SPIDER));
+    }
 
     /* ── Stage schalen naar het scherm ─────────────────────────────
        ?rotate=auto (standaard): staand beeldvlak → rechtop; liggend beeldvlak → stage 90° gedraaid,
@@ -768,17 +974,19 @@ const CHECK_MINUTES = 1;
     const mix = (a, b, f) => toHex(hex(a).map((v, i) => v + (hex(b)[i] - v) * f));
     const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${a.toFixed(3)})`; };
 
-    /* [zonshoogte °, zenit, midden, horizon, bord boven, bord onder] */
+    /* [zonshoogte °, zenit, midden, horizon, bord boven, bord onder]
+       Halloween: paars-violette nacht met een gloeiende horizon, felle oranje schemering
+       en overdag een bleke, wat onheilspellende herfstlucht. Het bord blijft aubergine. */
     const SKY = [
-        [-18, '#050a1a', '#0a1228', '#121c36', '#0b111b', '#04060b'],
-        [-12, '#0a1330', '#161e48', '#2d3264', '#0f1522', '#070a11'],
-        [ -7, '#162350', '#31366e', '#5c3f74', '#131b2a', '#0a0e17'],
-        [ -3, '#243a76', '#5d5290', '#b85d78', '#1a2433', '#0f151f'],
-        [  0, '#335796', '#7d6f9e', '#f08a4c', '#212f3d', '#141c27'],
-        [  4, '#4374ad', '#8ca3c8', '#f5c47c', '#2a3946', '#1a2530'],
-        [ 10, '#3e7fbe', '#8dbbdd', '#e8dcb6', '#334450', '#202c36'],
-        [ 22, '#3477ba', '#84b9df', '#bddcf0', '#3a4c58', '#25333c'],
-        [ 65, '#2c6fb5', '#7db3dd', '#b6daef', '#3c4e5a', '#27353e'],
+        [-18, '#0b0518', '#1c0c34', '#3a1650', '#130c1c', '#07050c'],
+        [-12, '#110726', '#25103e', '#4a1c58', '#170f22', '#0a0710'],
+        [ -7, '#1c0b38', '#3a1652', '#77284e', '#1c1428', '#0e0a15'],
+        [ -3, '#2a1350', '#5c2268', '#c8442c', '#22182f', '#120e1b'],
+        [  0, '#38205e', '#7c386a', '#f26a1e', '#2a1f38', '#171222'],
+        [  4, '#472f6c', '#9a5876', '#f59a48', '#312640', '#1c1728'],
+        [ 10, '#4a4680', '#8a78a0', '#e6b47c', '#352a45', '#1f192c'],
+        [ 22, '#484f88', '#8a8cb2', '#d2bca8', '#382d48', '#211a2e'],
+        [ 65, '#46508a', '#8890b8', '#c8b8b8', '#3a2f4a', '#231c30'],
     ];
 
     function skyColours(alt) {
@@ -816,6 +1024,72 @@ const CHECK_MINUTES = 1;
         starsEl.innerHTML = s;
     })();
 
+    /* ── Halloween-decor in de lucht ───────────────────────────── */
+    /* Kale, kronkelige bomen (vaste seed, dus elke keer dezelfde) */
+    (function buildTrees() {
+        let a = 31102026;
+        const rnd = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+        const WIDTH = [10, 6.5, 4.2, 2.6, 1.6];
+        const paths = WIDTH.map(() => '');
+        function branch(x1, y1, len, ang, depth) {
+            const x2 = x1 + Math.sin(ang) * len, y2 = y1 - Math.cos(ang) * len;
+            const bend = (rnd() - 0.5) * len * 0.35;
+            const cx = (x1 + x2) / 2 + Math.cos(ang) * bend, cy = (y1 + y2) / 2 + Math.sin(ang) * bend;
+            paths[depth] += `M${x1.toFixed(1)},${y1.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} `;
+            if (depth === WIDTH.length - 1) return;
+            const n = depth === 0 ? 3 : 2;
+            for (let i = 0; i < n; i++) {
+                const spread = n === 3 ? (i - 1) * 0.62 : (i ? 1 : -1) * (0.32 + rnd() * 0.38);
+                branch(x2, y2, len * (0.6 + rnd() * 0.14), ang + spread + (rnd() - 0.5) * 0.3, depth + 1);
+            }
+        }
+        /* [voet x, hoogte] — op de plekken van de oude bolle bomen */
+        const TREES = [[170, 100], [241, 128], [320, 104], [1130, 104], [1192, 132], [1262, 112], [1322, 88]];
+        TREES.forEach(([x, h]) => branch(x, 300, h * 0.36, (rnd() - 0.5) * 0.14, 0));
+        /* één pad per tak-niveau, met aflopende lijndikte */
+        document.getElementById('trees').innerHTML = paths.map((d, i) =>
+            `<path d="${d}" stroke-width="${WIDTH[i]}"/>`).join('');
+    })();
+
+    /* Vleermuizen: [hoogte, breedte, vliegduur s, vertraging s, deinduur s, omgekeerd?] */
+    (function buildBats() {
+        const BATS = [
+            [ 96, 64, 24,  -3, 2.8, 0], [168, 46, 31, -17, 3.4, 1], [215, 58, 27, -11, 2.2, 0],
+            [128, 40, 38, -26, 3.9, 1], [ 56, 50, 34,  -6, 3.1, 1], [190, 72, 22, -15, 2.6, 0],
+            [240, 44, 29, -21, 3.6, 1],
+        ];
+        const shape = '<path d="M46,20 C38,14 22,8 4,6 C10,12 12,18 10,24 C16,20 22,22 24,28 C28,23 34,24 37,30 C40,26 44,27 46,30 Z"/>'
+            + '<path d="M54,20 C62,14 78,8 96,6 C90,12 88,18 90,24 C84,20 78,22 76,28 C72,23 66,24 63,30 C60,26 56,27 54,30 Z"/>'
+            + '<ellipse cx="50" cy="24" rx="5.5" ry="10"/><circle cx="50" cy="13" r="5"/>'
+            + '<path d="M45.5,12 L46,4 L49,10 Z M54.5,12 L54,4 L51,10 Z"/>';
+        document.getElementById('bats').innerHTML = BATS.map(([y, w, dur, delay, bob, rev], i) =>
+            `<div class="bat" style="top:${y}px;animation-duration:${dur}s;animation-delay:${delay}s${rev ? ';animation-direction:reverse' : ''}">`
+            + `<div class="bob" style="animation-duration:${bob}s;animation-delay:${(-i * 0.7).toFixed(1)}s">`
+            + `<svg viewBox="0 0 100 50" width="${w}" height="${w / 2}" style="animation-delay:${(-i * 0.13).toFixed(2)}s">${shape}</svg>`
+            + '</div></div>').join('');
+    })();
+
+    /* Pompoen met uitgesneden gezicht (ook gebruikt in de voet) */
+    const PUMPKIN = '<svg viewBox="-32 -30 64 58" xmlns="http://www.w3.org/2000/svg">'
+        + '<path d="M-3,-15 C-3,-21 -1,-25 4,-28 L7,-25 C3,-22 3,-19 3,-15 Z" fill="#5d6b2c"/>'
+        + '<ellipse cx="-12" cy="6" rx="15" ry="19" fill="#c4501a"/><ellipse cx="12" cy="6" rx="15" ry="19" fill="#c4501a"/>'
+        + '<ellipse cx="-5" cy="5" rx="13" ry="21" fill="#e0661c"/><ellipse cx="5" cy="5" rx="13" ry="21" fill="#e0661c"/>'
+        + '<ellipse cx="0" cy="5" rx="8" ry="22" fill="#ee7a26"/>'
+        + '<g fill="#ffd54a"><path d="M-14,-1 L-5,-1 L-9.5,-9 Z M5,-1 L14,-1 L9.5,-9 Z M-2.5,6 L2.5,6 L0,1.5 Z"/>'
+        + '<path d="M-15,9 Q0,24 15,9 Q11,12 8,11.5 L6,15 L3,12.5 L-3,12.5 L-6,15 L-8,11.5 Q-11,12 -15,9 Z"/></g></svg>';
+    const pumpkinHTML = '<div class="glow"><div></div></div>' + PUMPKIN;
+
+    (function buildPumpkins() {
+        /* [midden x, breedte] — staan op de grondlijn van het silhouet */
+        const PUMPKINS = [[390, 80], [1108, 62], [1385, 88], [1800, 70]];
+        document.getElementById('pumpkins').innerHTML = PUMPKINS.map(([x, w], i) => {
+            const h = w * 58 / 64;
+            return `<div class="pk" style="left:${x - w / 2}px;top:${SKY_H - 1 - h}px;width:${w}px;height:${h}px">`
+                + pumpkinHTML.replace('<div></div>', `<div style="animation-delay:${(-i * 0.9).toFixed(1)}s"></div>`) + '</div>';
+        }).join('');
+        document.querySelectorAll('.foot .pk').forEach(el => { el.innerHTML = pumpkinHTML; });
+    })();
+
     function drawMoon(p) {
         const r = 44, t = Math.cos(2 * Math.PI * p), rx = Math.max(0.5, Math.abs(t) * r);
         const d = p < 0.5
@@ -845,6 +1119,9 @@ const CHECK_MINUTES = 1;
         const [zen, mid, hor, gTop, gBot] = skyColours(sun.alt);
         stage.style.setProperty('--ground-top', gTop);
         stage.style.setProperty('--ground-bottom', gBot);
+        const night = clamp((-sun.alt + 1) / 8, 0, 1);
+        stage.style.setProperty('--night', night.toFixed(3));
+        stage.style.setProperty('--glow', (0.3 + 0.7 * night).toFixed(3));
         document.body.style.background = gBot;
 
         const sx = skyX(sun.az), sy = skyY(sun.alt);
@@ -866,9 +1143,14 @@ const CHECK_MINUTES = 1;
 
         const moon = moonPosition(t);
         const mx = skyX(moon.az), my = skyY(moon.alt);
-        moonEl.style.transform = `translate(${(mx - 35).toFixed(1)}px, ${(my - 35).toFixed(1)}px)`;
-        moonEl.style.opacity = (clamp((-sun.alt + 1) / 9, 0, 1) * clamp((moon.alt + 2) / 4, 0, 1)).toFixed(3);
+        moonEl.style.transform = `translate(${(mx - 52).toFixed(1)}px, ${(my - 52).toFixed(1)}px)`;
+        const moonVis = clamp((-sun.alt + 1) / 9, 0, 1) * clamp((moon.alt + 2) / 4, 0, 1);
+        moonEl.style.opacity = moonVis.toFixed(3);
         drawMoon(moonPhase(t));
+
+        /* De heks vliegt langs de maan als die op is, anders op een vaste hoogte boven het dorp */
+        const laneY = moonVis > 0.3 && moon.alt > 3 ? clamp(my - 88, 10, 190) : 60;
+        witchLane.style.transform = `translateY(${laneY.toFixed(0)}px)`;
     }
 
     render();
