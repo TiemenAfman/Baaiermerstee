@@ -50,7 +50,7 @@ Alles staat in het `MENU`-object bovenin `<script>`. Een item is `[naam, prijs]`
 
 ## Halloween-thema (branch `halloween`)
 
-Op deze branch wijkt het ontwerp af: accent pompoenoranje `#ff8c21`, titel in Creepster (Google Fonts), paarse `SKY`-tabel, en in de lucht kale bomen, een kerkhofje, ramen die 's avonds oplichten (`--night`), vleermuizen, een heks die langs de maan vliegt, grondmist en pompoenen (`--glow`). Spinnenwebben en een spin hangen in de bovenste kaarten. Live zetten: GitHub Pages tijdelijk op deze branch zetten (Settings → Pages); na Halloween terug naar `main`. Zolang Pages op `halloween` staat, moeten menuwijzigingen hier gepusht worden (en ook op `main`, anders zijn ze na Halloween weg).
+Op deze branch wijkt het ontwerp af: accent pompoenoranje `#ff8c21`, titel in Creepster (Google Fonts), paarse `SKY`-tabel, en in de lucht kale bomen, een kerkhofje, ramen die 's avonds oplichten (`--night`), vleermuizen, een heks die langs de maan vliegt, grondmist, pompoenen (`--glow`) en drie skeletten die na zonsondergang (zon onder −0,833°, JS zet `.awake` op `#skeletons`) uit de grond van het kerkhof klimmen en dansen; bij zonsopgang zakken ze weer weg en staat hun animatie stil. Spinnenwebben en een spin hangen in de bovenste kaarten. Live zetten: GitHub Pages tijdelijk op deze branch zetten (Settings → Pages); na Halloween terug naar `main`. Zolang Pages op `halloween` staat, moeten menuwijzigingen hier gepusht worden (en ook op `main`, anders zijn ze na Halloween weg).
 
 ## Ontwerprichtlijnen
 

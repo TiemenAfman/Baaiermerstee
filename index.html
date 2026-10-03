@@ -15,7 +15,8 @@
            Vaste stage van 2160 × 3840 px, wordt geschaald naar het scherm.
            De lucht volgt de echte zonnestand boven Bierum (53.42 N, 6.87 E).
            HALLOWEEN-THEMA: pompoenoranje accent, paarse lucht, vleermuizen,
-           een heks die langs de maan vliegt, pompoenen, kale bomen en spinnenwebben.
+           een heks die langs de maan vliegt, pompoenen, kale bomen, spinnenwebben
+           en na zonsondergang dansende skeletten op het kerkhof.
            ───────────────────────────────────────────────────────────── */
         :root {
             --accent: #ff8c21;                 /* pompoenoranje: prijzen, koppen, kaartranden */
@@ -212,6 +213,59 @@
             80%  { opacity: 0.64; }
             100% { opacity: 0.9; }
         }
+
+        /* Dansende skeletten op het kerkhof. Na zonsondergang (JS zet .awake) klimmen ze uit de
+           grond; bij zonsopgang verstijven ze en zakken ze weer weg. Onder de grond staat de dans stil.
+           Ledematen draaien om hun gewricht: elk lid is getekend vanaf (0,0) in een verschoven <g>. */
+        .sk {
+            position: absolute;
+            overflow: hidden;                  /* onderrand = grondlijn: wat eronder zit, is weg */
+        }
+        .sk svg {
+            display: block;
+            transform: translateY(100%);
+            transition: transform 3.5s ease-in;
+            will-change: transform;
+        }
+        #skeletons.awake .sk svg {
+            transform: translateY(0);
+            transition: transform 4.5s ease-out;
+        }
+        .sk .hop, .sk .torso, .sk .head, .sk .arm, .sk .fore, .sk .thigh, .sk .shin {
+            transform-origin: 0 0;
+            animation-duration: 1.2s;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-play-state: paused;
+        }
+        #skeletons.awake .sk g { animation-play-state: running; }
+        .sk .hop  { animation-name: sk-hop; }
+        .sk .head { animation-name: sk-nod; }
+        .sk .alt  { animation-delay: -0.6s; }  /* rechterkant (gespiegeld) een halve maat later */
+        .kick .torso { animation-name: kick-torso; }
+        .kick .arm   { animation-name: kick-arm; }
+        .kick .fore  { animation-name: kick-fore; }
+        .kick .thigh { animation-name: kick-thigh; }
+        .kick .shin  { animation-name: kick-shin; }
+        .wave .torso { animation-name: wave-torso; }
+        .wave .arm   { animation-name: wave-arm; }
+        .wave .fore  { animation-name: wave-fore; }
+        .wave .thigh { animation-name: wave-thigh; }
+        .wave .shin  { animation-name: wave-shin; }
+        @keyframes sk-hop { 0%, 50%, 100% { transform: translateY(0); } 25%, 75% { transform: translateY(-6px); } }
+        @keyframes sk-nod { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+        /* "kick": om en om een knie de lucht in, armen zwaaien tegengesteld */
+        @keyframes kick-torso { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(7deg); } 75% { transform: rotate(-7deg); } }
+        @keyframes kick-arm   { 0%, 100% { transform: rotate(150deg); } 25% { transform: rotate(115deg); } 50% { transform: rotate(35deg); } 75% { transform: rotate(80deg); } }
+        @keyframes kick-fore  { 0%, 100% { transform: rotate(-25deg); } 50% { transform: rotate(-80deg); } }
+        @keyframes kick-thigh { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(55deg); } }
+        @keyframes kick-shin  { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(-75deg); } }
+        /* "wave": handen in de lucht, heupen heen en weer, knieën om en om */
+        @keyframes wave-torso { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+        @keyframes wave-arm   { 0%, 100% { transform: rotate(160deg); } 50% { transform: rotate(130deg); } }
+        @keyframes wave-fore  { 0%, 100% { transform: rotate(-30deg); } 50% { transform: rotate(30deg); } }
+        @keyframes wave-thigh { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(16deg); } }
+        @keyframes wave-shin  { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-30deg); } }
 
         .clock {
             position: absolute;
@@ -493,7 +547,8 @@
 
         @media (prefers-reduced-motion: reduce) {
             .rotor, .stars .tw, .bat, .bat .bob, .bat svg, .witch .bob, .mist, .pk .glow div,
-            .card.spider::before, .card.spider::after { animation: none; }
+            .card.spider::before, .card.spider::after, .sk g { animation: none; }
+            .sk svg { transition: none; }
             .witch { display: none; }
         }
 
@@ -596,7 +651,8 @@
             </g>
         </svg>
 
-        <!-- vleermuizen (JS), de heks, grondmist en pompoenen (JS) -->
+        <!-- dansende skeletten (JS), vleermuizen (JS), de heks, grondmist en pompoenen (JS) -->
+        <div id="skeletons"></div>
         <div id="bats"></div>
         <div class="witch-lane" id="witchLane">
             <div class="witch"><div class="bob">
@@ -1094,6 +1150,39 @@ const CHECK_MINUTES = 1;
         document.querySelectorAll('.foot .pk').forEach(el => { el.innerHTML = pumpkinHTML; });
     })();
 
+    /* Dansende skeletten op het kerkhof. Tekening rond het bekken (0,0); de rechterarm en het
+       rechterbeen zijn gespiegelde kopieën van links (.alt = een halve maat later). */
+    const skelEl = document.getElementById('skeletons');
+    (function buildSkeletons() {
+        /* [midden x, dans, gespiegeld?, vertraging bij opstaan/wegzakken s] */
+        const SKELETONS = [[1188, 'kick', 0, 0.6], [1256, 'wave', 0, 0], [1324, 'kick', 1, 1.3]];
+        const S = 0.9, VW = 108, VH = 130;     /* viewBox -54 -90 108 130, voeten op y ≈ 39 */
+        const BONE = '#ece2cc', HOLE = '#140b1e';
+        const leg = alt => `<g class="thigh${alt}"><path d="M0,0 L0,19" stroke-width="4.4"/>`
+            + `<g transform="translate(0,19)"><g class="shin${alt}"><path d="M0,0 L0,18 L-5,19" stroke-width="4"/></g></g></g>`;
+        const arm = alt => `<g class="arm${alt}"><path d="M0,0 L0,15" stroke-width="4"/>`
+            + `<g transform="translate(0,15)"><g class="fore${alt}"><path d="M0,0 L0,12" stroke-width="3.6"/>`
+            + '<circle cy="14.5" r="3.1" stroke="none"/></g></g></g>';
+        const body = `<g class="hop" fill="${BONE}" stroke="${BONE}" stroke-linecap="round" stroke-linejoin="round">`
+            + `<g transform="translate(-5,-1)">${leg('')}</g><g transform="translate(5,-1) scale(-1,1)">${leg(' alt')}</g>`
+            + '<path d="M-9,-6 Q0,-10 9,-6 L7,2 Q0,-1 -7,2 Z" stroke-width="1.5"/>'
+            + '<g class="torso"><g fill="none">'
+            + '<path d="M0,-4 L0,-50" stroke-width="3.2"/>'
+            + '<path d="M-8,-41 Q0,-47 8,-41 M-9,-35.5 Q0,-41.5 9,-35.5 M-8.5,-30 Q0,-36 8.5,-30 M-7,-24.5 Q0,-30 7,-24.5" stroke-width="2.6"/>'
+            + '<path d="M-11,-46 Q0,-49 11,-46" stroke-width="3.4"/></g>'
+            + `<g transform="translate(-11,-46)">${arm('')}</g><g transform="translate(11,-46) scale(-1,1)">${arm(' alt')}</g>`
+            + '<g transform="translate(0,-50)"><g class="head" stroke="none">'
+            + '<path d="M-5.5,-5 L5.5,-5 L4.2,0 L-4.2,0 Z"/><ellipse cy="-11" rx="9" ry="9.5"/>'
+            + `<g fill="${HOLE}"><circle cx="-3.6" cy="-11" r="2.7"/><circle cx="3.6" cy="-11" r="2.7"/><path d="M0,-7.6 L-1.4,-5 L1.4,-5 Z"/></g>`
+            + '</g></g></g></g>';
+        skelEl.innerHTML = SKELETONS.map(([x, dance, mirror, delay]) => {
+            const w = VW * S, h = VH * S;
+            return `<div class="sk ${dance}" style="left:${(x - w / 2).toFixed(1)}px;top:${(SKY_H - 2 - h).toFixed(1)}px">`
+                + `<svg viewBox="${-VW / 2} -90 ${VW} ${VH}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" style="transition-delay:${delay}s">`
+                + (mirror ? `<g transform="scale(-1,1)">${body}</g>` : body) + '</svg></div>';
+        }).join('');
+    })();
+
     function drawMoon(p) {
         const r = 44, t = Math.cos(2 * Math.PI * p), rx = Math.max(0.5, Math.abs(t) * r);
         const d = p < 0.5
@@ -1127,6 +1216,8 @@ const CHECK_MINUTES = 1;
         stage.style.setProperty('--night', night.toFixed(3));
         stage.style.setProperty('--glow', (0.3 + 0.7 * night).toFixed(3));
         document.body.style.background = gBot;
+        /* Zon onder (officiële zonsondergang, -0,833°): de skeletten komen dansen */
+        skelEl.classList.toggle('awake', sun.alt < -0.833);
 
         const sx = skyX(sun.az), sy = skyY(sun.alt);
         const sc = sunColour(sun.alt);
