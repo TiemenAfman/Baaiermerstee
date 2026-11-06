@@ -709,8 +709,9 @@
         /* ── KERST ─────────────────────────────────────────────────
            Warme kerst boven Bierum: donkergroen bord met kaarsgoud accent en hulstrode
            kaartranden, een heldere winterlucht (SKY_THEMES.kerst) met lichte sneeuwval,
-           sneeuw op de daken, de dijk en de boomkruinen, lichtjes in de bomen, een verlichte
-           kerstboom naast de Sebastiaankerk, een ster boven de toren en na zonsondergang de
+           sneeuw op de daken, de dijk en de boomkruinen, lichtjes in de bomen, drie groene
+           kerstbomen vol lampjes en ballen (bij beide boerderijen en naast de Sebastiaankerk),
+           een ster boven de toren en na zonsondergang de
            arreslee met rendieren langs de maan. Hulst in de titelband, een dennentak op de
            bovenste kaarten met een kerstbal aan de Patat-kaart, en kerstboompjes in de voet. */
         #stage.theme-kerst {
@@ -718,7 +719,7 @@
             --accent-rgb: 247, 198, 78;
         }
         .theme-kerst .land .lit { fill: #ffcf73; }
-        .theme-kerst .no-kerst { display: none; }   /* de bolle boom naast de kerk maakt plaats voor de kerstboom */
+        .theme-kerst .no-kerst { display: none; }   /* twee bolle bomen maken plaats voor kerstbomen */
 
         /* Sneeuw op daken, dijk en boomkruinen: 's avonds wat zachter */
         .land .snow {
@@ -730,14 +731,20 @@
             opacity: calc(0.95 - 0.3 * var(--night));
         }
 
-        /* Lichtjes in de bomen en in de kerstboom: overdag flauw, 's avonds fel, in drie groepen fonkelend.
-           De animatie hangt aan .theme-kerst: binnen een verborgen SVG-groep zou hij anders doortikken. */
-        .land .xl { opacity: calc(0.45 + 0.55 * var(--night)); }
-        .theme-kerst .land .xl g { animation: xl-blink 2.8s ease-in-out infinite alternate; }
-        .theme-kerst .land .xl .b { animation-duration: 3.4s; animation-delay: -1.4s; }
-        .theme-kerst .land .xl .c { animation-duration: 2.2s; animation-delay: -0.7s; }
-        @keyframes xl-blink { from { opacity: 1; } to { opacity: 0.35; } }
+        /* Drie groene kerstbomen: 's avonds zakt het groen weg in het silhouet (.kdim in de bordkleur
+           eroverheen), zodat de lampjes en de gloed het overnemen */
+        .land .kdim { opacity: calc(0.72 * var(--night)); }
         .land .kglow { opacity: var(--night); }
+
+        /* Lichtjes in de bomen en de kerstbomen: dekkende, verzadigde kernen die ook overdag te zien
+           zijn, 's avonds met een halo eromheen. In drie groepen fonkelend: overdag nauwelijks, 's avonds
+           duidelijk. De animatie hangt aan .theme-kerst: binnen een verborgen SVG-groep zou hij anders
+           doortikken. */
+        .land .xl .halo { opacity: var(--night); }
+        .theme-kerst .land .xl > g { animation: xl-blink 2.8s ease-in-out infinite alternate; }
+        .theme-kerst .land .xl > .b { animation-duration: 3.4s; animation-delay: -1.4s; }
+        .theme-kerst .land .xl > .c { animation-duration: 2.2s; animation-delay: -0.7s; }
+        @keyframes xl-blink { from { opacity: 1; } to { opacity: calc(0.85 - 0.5 * var(--night)); } }
 
         /* Lichte sneeuwval: twee lagen met een tegel vol vlokken (JS), die vallen (translateY)
            en zacht heen en weer wiegen (translateX). Vier bewegende elementen in totaal. */
@@ -993,7 +1000,7 @@
             .sk g, .theme-sinterklaas .boat .sail, .theme-sinterklaas .boat .puff, .sint .ride, .sint .leg, .sint .knee, .sint .pn,
             .theme-halloween #colRight > .card:first-child::before,
             .theme-halloween #colRight > .card:first-child::after,
-            .theme-kerst .land .xl g, .snowfall .sway, .snowfall .fall, .kstar .halo div, .sleigh .bob, .sleigh .rl,
+            .theme-kerst .land .xl > g, .snowfall .sway, .snowfall .fall, .kstar .halo div, .sleigh .bob, .sleigh .rl,
             .theme-kerst #colRight > .card:first-child::after,
             .cb .gun, .foot .bub { animation: none; }
             .sk svg { transition: none; }
@@ -1087,13 +1094,15 @@
             <!-- wierde (kerst: met sneeuw, die achter de gebouwen verdwijnt) -->
             <path d="M300,300 C500,296 650,262 830,258 C1010,254 1180,290 1400,300 Z"/>
             <path class="snow t-kerst" d="M300,300 C500,296 650,262 830,258 C1010,254 1180,290 1400,300" stroke-width="6"/>
-            <!-- bomen links -->
+            <!-- bomen links (de derde maakt met kerst plaats voor een kerstboom) -->
             <g class="leafy">
                 <rect x="165" y="250" width="10" height="50"/>
                 <rect x="235" y="232" width="12" height="68"/>
-                <rect x="315" y="248" width="10" height="52"/>
                 <circle cx="170" cy="250" r="40"/>
                 <circle cx="241" cy="230" r="54"/>
+            </g>
+            <g class="leafy no-kerst">
+                <rect x="315" y="248" width="10" height="52"/>
                 <circle cx="320" cy="247" r="44"/>
             </g>
             <!-- Halloween: kale bomen links en rechts van de kerk, getekend door JS (buildTrees) -->
@@ -1126,22 +1135,6 @@
                 <circle cx="1262" cy="240" r="42"/>
                 <circle cx="1322" cy="252" r="32"/>
             </g>
-            <!-- Kerst: de kerstboom naast de Sebastiaankerk, met een gloed die 's avonds aangaat
-                 (lichtjes, piek en sneeuw tekent JS in #kerstLights) -->
-            <g class="t-kerst">
-                <defs>
-                    <radialGradient id="kGlow">
-                        <stop offset="0" stop-color="#ffd27a" stop-opacity="0.38"/>
-                        <stop offset="0.5" stop-color="#ffc35a" stop-opacity="0.12"/>
-                        <stop offset="1" stop-color="#ffc35a" stop-opacity="0"/>
-                    </radialGradient>
-                </defs>
-                <circle class="kglow" cx="1132" cy="236" r="96" fill="url(#kGlow)"/>
-                <rect x="1127" y="284" width="10" height="16"/>
-                <path d="M1084,290 L1132,226 L1180,290 Q1132,281 1084,290 Z"/>
-                <path d="M1093,254 L1132,197 L1171,254 Q1132,246 1093,254 Z"/>
-                <path d="M1103,220 L1132,166 L1161,220 Q1132,213 1103,220 Z"/>
-            </g>
             <!-- Halloween: kerkhof bij de Sebastiaankerk (de skeletten dansen ertussen) -->
             <g class="t-halloween">
                 <path d="M1144,300 L1144,274 A12,12 0 0 1 1168,274 L1168,300 Z"/>
@@ -1154,6 +1147,19 @@
             <path d="M1400,300 L1400,242 L1512,160 L1624,242 L1624,300 Z"/>
             <path d="M1624,300 L1624,256 L1668,222 L1712,256 L1712,300 Z"/>
             <rect x="1690" y="220" width="8" height="18"/>
+            <!-- Kerst: drie groene kerstbomen (bij boerderij 1, naast de Sebastiaankerk en bij boerderij 2),
+                 elk met een gloed die 's avonds aangaat. JS (buildKerst) tekent stam, lagen, sneeuw en slingers;
+                 lampjes, ballen en piek komen in #kerstLights -->
+            <g class="t-kerst">
+                <defs>
+                    <radialGradient id="kGlow">
+                        <stop offset="0" stop-color="#ffd27a" stop-opacity="0.38"/>
+                        <stop offset="0.5" stop-color="#ffc35a" stop-opacity="0.12"/>
+                        <stop offset="1" stop-color="#ffc35a" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+                <g id="kerstBomen"></g>
+            </g>
             <!-- grondlijn -->
             <rect x="0" y="297" width="2160" height="4"/>
             <!-- Kerst: sneeuw op de daken, de schoorstenen, de steunbeer, de toren en het schip -->
@@ -1612,37 +1618,87 @@ const CHECK_MINUTES = 1;
         document.getElementById('kStar').innerHTML =
             `<path d="${starPath(26, 22, 34, 9, 4.5)}" fill="#fff4cf"/><circle r="4" fill="#ffffff"/>`;
 
+        /* Lampjes: verzadigde kleuren met een dekkende kern, zodat ze ook overdag tegen het groen
+           en de lichte lucht te zien zijn; 's avonds gaat er een halo omheen (.halo). Verdeeld over
+           drie groepen a/b/c die om beurten fonkelen (drie animaties voor alle lampjes samen). */
+        const LAMP = ['#ffc21a', '#ff2e2e', '#ffffff', '#2f8cff'];   /* goud, rood, wit, blauw */
+        const groups = { a: '', b: '', c: '' }, halos = { a: '', b: '', c: '' };
+        const keys = ['a', 'b', 'c'];
+        let k = 0;
+        const lamp = (x, y, c, r, rim) => {
+            const g = keys[k++ % 3];
+            halos[g] += `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(r * 3)}" fill="url(#kHalo${c})"/>`;
+            groups[g] += `<circle cx="${f1(x)}" cy="${f1(y)}" r="${r}" fill="${LAMP[c]}"${rim ? ' stroke="#0d2a16" stroke-width="1.2"' : ''}/>`;
+        };
+
         /* Sneeuw op de bolle boomkruinen en lichtjes erin: [midden x, midden y, straal] */
         const rnd = seeded(61227);
-        const LEAFY = [[170, 250, 40], [241, 230, 54], [320, 247, 44], [1192, 226, 48], [1262, 240, 42], [1322, 252, 32]];
-        const groups = { a: '', b: '', c: '' };
-        const keys = ['a', 'b', 'c'];
-        let caps = '', k = 0;
+        const LEAFY = [[170, 250, 40], [241, 230, 54], [1192, 226, 48], [1262, 240, 42], [1322, 252, 32]];
+        let caps = '';
         LEAFY.forEach(([cx, cy, r]) => {
             const p = deg => [cx + Math.cos(deg * Math.PI / 180) * r, cy + Math.sin(deg * Math.PI / 180) * r];
             const [x1, y1] = p(-152), [x2, y2] = p(-28);
             caps += `M${f1(x1)},${f1(y1)} A${r},${r} 0 0 1 ${f1(x2)},${f1(y2)} `;
-            const n = Math.round(r / 8);
+            const n = Math.round(r / 7);
             for (let i = 0; i < n; i++) {
                 const a = (rnd() * 300 - 240) * Math.PI / 180, d = r * (0.25 + rnd() * 0.5);
-                const warm = rnd() < 0.75;
-                groups[keys[k++ % 3]] += `<circle cx="${f1(cx + Math.cos(a) * d)}" cy="${f1(cy + 6 + Math.sin(a) * d * 0.8)}" r="3.2" fill="${warm ? '#ffe7a8' : '#ff8a6a'}"/>`;
+                lamp(cx + Math.cos(a) * d, cy + 6 + Math.sin(a) * d * 0.8, i % LAMP.length, 4, false);
             }
         });
-        /* Kerstboom: slingers gekleurde lampjes langs de onderrand van elke laag, met een lichte doorbuiging */
-        const BULBS = ['#ffd36b', '#ff5a4f', '#7cc8ff', '#ffd36b', '#ff9de0', '#8ef0a0'];
-        [[284, 40, 7], [248, 32, 6], [214, 23, 4], [190, 12, 2]].forEach(([y, half, n], row) => {
-            for (let i = 0; i < n; i++) {
-                const f = n === 1 ? 0.5 : i / (n - 1), x = 1132 - half + f * half * 2;
-                const sag = Math.sin(f * Math.PI) * 5;
-                groups[keys[k++ % 3]] += `<circle cx="${f1(x)}" cy="${f1(y - 4 + sag)}" r="3.4" fill="${BULBS[(i + row * 2) % BULBS.length]}"/>`;
-            }
+
+        /* Drie kerstbomen: midden x, voet y en de lagen als [onderkant y, halve breedte, top y].
+           Links een slanke hoge bij boerderij 1, in het midden de brede naast de kerk, rechts een
+           kleinere bij boerderij 2 op de dijk (ruim links van de wieken van de eerste turbine). */
+        const KERSTBOMEN = [
+            { cx: 336,  foot: 300, tiers: [[292, 44, 238], [262, 36, 210], [232, 28, 186], [205, 19, 164]] },
+            { cx: 1132, foot: 300, tiers: [[290, 50, 224], [254, 40, 195], [220, 30, 164]] },
+            { cx: 1752, foot: 300, tiers: [[286, 38, 234], [256, 30, 207], [228, 21, 184]] },
+        ];
+        const BALL = ['#d81f2b', '#f2b705', '#2463d6', '#e9eef4'];   /* rood, goud, blauw, zilver */
+        let trees = '', balls = '', pieks = '';
+        KERSTBOMEN.forEach(({ cx, foot, tiers }, ti) => {
+            const top = tiers[tiers.length - 1][2], base = tiers[0][0];
+            const tier = ([b, h, t]) => `M${cx - h},${b} L${cx},${t} L${cx + h},${b} Q${cx},${b - 8} ${cx - h},${b} Z`;
+            const shade = ([b, h, t]) => `M${cx},${t} L${cx + h},${b} Q${cx + h / 2},${b - 6} ${cx},${b - 4} Z`;
+            const all = tiers.map(tier).join(' ');
+            let snow = '', garland = '';
+            trees += `<circle class="kglow" cx="${cx}" cy="${f1((top + base) / 2)}" r="${f1((base - top) * 0.75)}" fill="url(#kGlow)"/>`
+                + `<rect x="${cx - 5}" y="${base - 8}" width="10" height="${foot - base + 8}" fill="#4a2f1c"/>`;
+            /* Slinger lampjes en ballen per laag: slinger iets boven de onderrand, ballen erboven */
+            tiers.forEach(([b, h, t], row) => {
+                const wAt = y => h * (y - t) / (b - t);
+                snow += `M${f1(cx - h * 0.55)},${b - 3} Q${cx},${b - 10} ${f1(cx + h * 0.55)},${b - 3} `;
+                const gy = b - 13, gh = wAt(gy) * 0.92, n = Math.max(2, Math.round(gh * 2 / 13));
+                garland += `M${f1(cx - gh)},${gy} Q${cx},${gy + 12} ${f1(cx + gh)},${gy} `;
+                for (let i = 0; i <= n; i++) {
+                    const f = i / n, x = cx - gh + f * gh * 2, y = gy + Math.sin(f * Math.PI) * 6;
+                    lamp(x, y, (i + row + ti) % LAMP.length, 3.6, true);
+                }
+                const by = b - (b - t) * 0.5, bh = wAt(by) * 0.7, nb = row === tiers.length - 1 ? 1 : 2;
+                for (let i = 0; i < nb; i++) {
+                    const x = nb === 1 ? cx + 2 : cx - bh + (i + 0.5) / nb * bh * 2 + (row % 2 ? 4 : -4);
+                    const c = BALL[(i + row * 2 + ti) % BALL.length];
+                    balls += `<circle cx="${f1(x)}" cy="${f1(by)}" r="5.5" fill="${c}" stroke="#0d2a16" stroke-width="1.4"/>`
+                        + `<circle cx="${f1(x - 1.8)}" cy="${f1(by - 1.9)}" r="1.6" fill="#ffffff" opacity="0.85"/>`;
+                }
+            });
+            trees += `<path d="${all}" fill="#2f7d45"/>`
+                + `<path d="${tiers.map(shade).join(' ')}" fill="#1f5f33"/>`
+                + `<path class="kdim" d="${all}"/>`
+                + `<path class="snow" d="${snow}" stroke-width="5"/>`
+                + `<path d="${garland}" fill="none" stroke="#7a5a1e" stroke-width="1.6"/>`;
+            pieks += `<path d="${starPath(12, 9, 11, 4, 2.8)}" transform="translate(${cx},${top - 3})" fill="#ffd23f" stroke="#8a5a00" stroke-width="1"/>`;
         });
+        /* Halo per lampkleur: een zachte radiale vlek, geen blur */
+        const haloDefs = LAMP.map((c, i) => `<radialGradient id="kHalo${i}"><stop offset="0" stop-color="${c}" stop-opacity="0.8"/>`
+            + `<stop offset="0.45" stop-color="${c}" stop-opacity="0.3"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`).join('');
+        document.getElementById('kerstBomen').innerHTML = `<defs>${haloDefs}</defs>` + trees;
+        const xl = keys.map(g => `<g class="${g}"><g class="halo">${halos[g]}</g>${groups[g]}</g>`).join('');
         document.getElementById('kerstLights').innerHTML =
             `<path class="snow" d="${caps}" stroke-width="8"/>`
-            + `<path class="snow" d="M1110,219 Q1132,213 1154,219 M1100,253 Q1132,246 1164,253 M1092,289 Q1132,281 1172,289" stroke-width="5"/>`
-            + `<g class="xl"><g class="a">${groups.a}</g><g class="b">${groups.b}</g><g class="c">${groups.c}</g></g>`
-            + `<path d="${starPath(11, 9, 11, 4, 2.6)}" transform="translate(1132,163)" fill="#ffe08a"/>`;
+            + balls
+            + `<g class="xl">${xl}</g>`
+            + pieks;
 
         /* Dennentak in de hoek van de bovenste kaarten, met hulstbessen */
         const pine = (() => {
