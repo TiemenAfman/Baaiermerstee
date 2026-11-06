@@ -9,7 +9,8 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 - Live: `https://tiemenafman.github.io/Baaiermerstee/`
 - Branch: `main` (GitHub Pages deployt vanaf `main`, map `/`)
 - Na elke wijziging: `git add index.html && git commit -m "..." && git push`
-- De pagina controleert elke `CHECK_MINUTES` minuten (nu 1) stil op de achtergrond of `index.html` op de server is veranderd en herlaadt alleen dan, dus geen geflits; `0` schakelt de controle uit
+- De pagina controleert elke `CHECK_MINUTES` minuten (nu 1) stil op de achtergrond of `index.html` op de server is veranderd en herlaadt alleen dan, dus geen geflits; `0` schakelt de controle uit. Pas na twee opeenvolgende checks met dezelfde nieuwe inhoud wordt er herladen (voorkomt een herlaad op een eenmalige CDN-hik)
+- Voor een Raspberry Pi met FullPageOS als alternatief scherm: zie `wifi-setup.md`
 
 ## Scherm & technische eisen
 
@@ -17,7 +18,7 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 - Geen flex `gap` gebruiken (oudere Android-WebViews op signage-SoCs kennen dat niet); marges in plaats daarvan
 - Kiosk: `overflow: hidden`, `cursor: none`, `<meta name="google" content="notranslate">`
 - Geen frameworks of build-stappen. Enige externe bron: Google Fonts (Young Serif + Atkinson Hyperlegible) met systeem-fallbacks
-- Lettergroottes zijn afgestemd op leesbaarheid vanaf ~3 meter — **niet verkleinen** (items 52 px, prijzen 54 px)
+- Lettergroottes zijn afgestemd op leesbaarheid vanaf ~3 meter — **niet verkleinen** (items 56 px, prijzen 58 px)
 
 ## URL-parameters (voor testen en installatie)
 
@@ -31,22 +32,22 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 
 ## Architectuur van index.html
 
-1. **Lucht** (`.sky`, 0–760 px): volgt de echte zonnestand boven Bierum (53.4167 N, 6.8667 E) met een SunCalc-achtige berekening in de pagina.
+1. **Lucht** (`.sky`, 0–380 px): volgt de echte zonnestand boven Bierum (53.4167 N, 6.8667 E) met een SunCalc-achtige berekening in de pagina.
    - Zon en maan staan op hun echte azimut/hoogte (azimut 40°–320° → volle breedte, hoogte 0°–62° → horizon tot boven)
    - Luchtkleuren, bordkleur en zonkleur worden geïnterpoleerd uit de tabel `SKY` (per zonshoogte in graden)
    - Sterren verschijnen onder −3°, maanfase wordt getekend met een SVG-pad
-   - Silhouet van Bierum (kerk met steunbeer, boerderijen, bomen, dijk, turbines Eemshaven) als SVG met `fill: var(--ground-top)`, zodat het naadloos in het bord overloopt
-   - Klok, datum en zon-op/zon-onder rechtsboven
-2. **Titelband** (`.band`, 760–980 px): "Baaiermerstee" in Young Serif + "Afhaalmenu"
-3. **Menubord** (`.board`, 980–3660 px): twee kolommen met kaarten, opgebouwd uit `MENU` in het script
+   - Silhouet van Bierum (kerk met steunbeer, boerderijen, bomen, dijk, turbines Eemshaven) als SVG die de bordkleur (`currentColor` = `--ground-top`) overneemt, zodat het naadloos in het bord overloopt
+   - Klok en datum rechtsboven
+2. **Titelband** (`.band`, 380–600 px): "Baaiermerstee" in Young Serif + "Menukaart"
+3. **Menubord** (`.board`, 600–3660 px): twee kolommen met kaarten, opgebouwd uit `MENU` in het script
    - Kaarten groeien naar rato van hun aantal regels (`flex-grow`), zodat beide kolommen gelijk uitkomen
    - `fitRows()` verkleint te lange namen tot ze op één regel passen
-   - `EVENT` = de Noaberschap-kaart onder in de linkerkolom (`show: false` verbergt hem)
-4. **Voet** (`.foot`): "Waar jong en oud elkaar ontmoeten!"
+   - `SNACK_VAN_DE_MAAND` = optionele kaart bovenin de linkerkolom, `EVENT` = de Noaberschap-kaart onderin de linkerkolom (`show: false` verbergt elk apart)
+4. **Voet** (`.foot`, 3660–3840 px): "Waar jong en oud elkaar ontmoeten!"
 
 ## Menu aanpassen
 
-Alles staat in het `MENU`-object bovenin `<script>`. Een item is `[naam, prijs]` of `[naam, prijs, toelichting]`, bijvoorbeeld `['Kipnuggets', '2,50', '6 stuks']`. Nieuwe secties: een object `{ title, items }` toevoegen aan `left` of `right`; de kolomhoogte verdeelt zichzelf.
+Alles staat in het `MENU`-object bovenin `<script>`. Een item is `[naam, prijs]` of `[naam, prijs, toelichting]`, bijvoorbeeld `['Kipnuggets', '2,50', '6 stuks']`. Nieuwe secties: een object `{ title, items }` toevoegen aan `left` of `right`; de kolomhoogte verdeelt zichzelf. `SNACK_VAN_DE_MAAND` en `EVENT` (vlak erna in het script) zijn losse kaarten met dezelfde `show`-vlag.
 
 ## Ontwerprichtlijnen
 
