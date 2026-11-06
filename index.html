@@ -623,8 +623,9 @@
         }
 
         /* De stoomboot (in het silhouet, achter de dijk): vaart binnen, ligt een tijd aan,
-           verdwijnt in de mist en komt weer. Begint aangemeerd (negatieve delay). */
-        .boat .sail {
+           verdwijnt in de mist en komt weer. Begint aangemeerd (negatieve delay).
+           De animaties hangen aan .theme-sinterklaas: binnen een verborgen SVG-groep tikken ze anders door. */
+        .theme-sinterklaas .boat .sail {
             animation: boat-sail 300s linear infinite;
             animation-delay: -150s;
         }
@@ -644,9 +645,9 @@
             fill: rgba(236, 232, 242, 0.75);
             transform-box: fill-box;
             transform-origin: center;
-            animation: puff 5s ease-out infinite;
             opacity: 0;
         }
+        .theme-sinterklaas .boat .puff { animation: puff 5s ease-out infinite; }
         @keyframes puff {
             0%   { transform: translate(0, 0) scale(0.6); opacity: 0.8; }
             100% { transform: translate(46px, -54px) scale(2.6); opacity: 0; }
@@ -989,10 +990,10 @@
 
         @media (prefers-reduced-motion: reduce) {
             .rotor, .stars .tw, .bat, .bat .bob, .bat svg, .witch .bob, .mist, .pk .glow div,
-            .sk g, .boat .sail, .boat .puff, .sint .ride, .sint .leg, .sint .knee, .sint .pn,
+            .sk g, .theme-sinterklaas .boat .sail, .theme-sinterklaas .boat .puff, .sint .ride, .sint .leg, .sint .knee, .sint .pn,
             .theme-halloween #colRight > .card:first-child::before,
             .theme-halloween #colRight > .card:first-child::after,
-            .land .xl g, .snowfall .sway, .snowfall .fall, .kstar .halo div, .sleigh .bob, .sleigh .rl,
+            .theme-kerst .land .xl g, .snowfall .sway, .snowfall .fall, .kstar .halo div, .sleigh .bob, .sleigh .rl,
             .theme-kerst #colRight > .card:first-child::after,
             .cb .gun, .foot .bub { animation: none; }
             .sk svg { transition: none; }
