@@ -65,6 +65,46 @@ Vooraf bekijken hoe het bord er op een ander moment uitziet, kan met een toevoeg
 - `?theme=kerst` of `?theme=none` — toont een thema, of juist geen
 - `?demo` — speelt een heel etmaal af in anderhalve minuut
 
+## Werken met Git op je eigen computer (technisch, optioneel)
+
+Wie liever op de eigen computer werkt dan in de browser, gebruikt Git: `git pull` haalt de nieuwste versie op, `git push` zet jouw wijziging online. Het resultaat is hetzelfde als bewerken in de browser.
+
+Eenmalig instellen:
+
+1. Installeer Git van [git-scm.com](https://git-scm.com/downloads). Op Windows zit er een inlogvenster bij: de eerste keer dat je pusht, log je in de browser in bij GitHub. Op een Mac of Linux log je in met de [GitHub CLI](https://cli.github.com/): `gh auth login`.
+2. Vertel Git wie je bent (dit komt bij elke wijziging te staan):
+
+    ```
+    git config --global user.name "Voornaam Achternaam"
+    git config --global user.email "jij@voorbeeld.nl"
+    ```
+
+3. Haal de repository op en ga de map in:
+
+    ```
+    git clone https://github.com/TiemenAfman/Baaiermerstee.git
+    cd Baaiermerstee
+    ```
+
+Elke keer dat je iets aanpast:
+
+1. `git pull` — haal eerst de nieuwste versie op, want iemand anders kan intussen in de browser iets veranderd hebben.
+2. Pas `index.html` aan in een teksteditor (Kladblok werkt, [Visual Studio Code](https://code.visualstudio.com/) is prettiger). Dezelfde regels als hierboven gelden.
+3. Bekijk het resultaat door `index.html` in de browser te openen (dubbelklikken). Ook hier werken `?t=` en `?theme=` achter het adres. Of klik in Visual Studio Code met de rechtermuisknop op `index.html` en kies "Open with Live Server" (daarvoor installeer je eenmalig de extensie Live Server).
+4. `git diff` — laat precies zien wat je veranderd hebt.
+5. `git add index.html`
+6. `git commit -m "Frikandel naar 2,50"`
+7. `git push` — binnen een paar minuten staat het online; controleer het zoals hierboven beschreven.
+
+Als het niet meteen lukt:
+
+- **Push geweigerd** ("rejected", "fetch first"): iemand anders heeft intussen iets veranderd. Doe `git pull` en daarna opnieuw `git push`.
+- **Conflict na `git pull`**: jij en iemand anders hebben dezelfde regel aangepast. Open `index.html` en zoek naar `<<<<<<<`. Tussen die markering en `=======` staat jouw versie, tussen `=======` en `>>>>>>>` de andere. Laat de juiste versie staan, haal de drie markeringsregels weg, en doe `git add index.html`, `git commit` en `git push`.
+- **Je laatste wijziging ongedaan maken**: `git revert HEAD` en daarna `git push`. Dit maakt een nieuwe wijziging die de vorige terugdraait; er gaat niets verloren.
+- **Waar sta ik?** `git status` laat zien wat er veranderd is en of je achterloopt; `git log --oneline` toont de geschiedenis.
+
+Gebruik nooit `git push --force`: dat kan wijzigingen van anderen overschrijven. Werk altijd op de branch `main`, want alleen die staat online.
+
 ## Thema's en hun data
 
 De thema's gaan om middernacht vanzelf aan en uit, en de prijzen blijven in elk thema dezelfde.
