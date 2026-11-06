@@ -373,16 +373,21 @@
            niet en hun animaties draaien niet (belangrijk op een signage-SoC/Raspberry Pi).
            Kleuren van gewone elementen pas je aan onder .theme-<id>. */
         #stage:not(.theme-halloween) .t-halloween,
-        #stage:not(.theme-sinterklaas) .t-sinterklaas { display: none !important; }
+        #stage:not(.theme-sinterklaas) .t-sinterklaas,
+        #stage:not(.theme-kerst) .t-kerst,
+        #stage:not(.theme-oudennieuw) .t-oudennieuw { display: none !important; }
 
         /* Verlichte ramen in het silhouet: gaan aan als het donker wordt (--night) */
         .land .lit { fill: #ffb347; opacity: var(--night); }
-        #stage:not(.theme-halloween):not(.theme-sinterklaas) .land .lit { display: none; }
+        #stage:not(.theme-halloween):not(.theme-sinterklaas):not(.theme-kerst):not(.theme-oudennieuw) .land .lit { display: none; }
 
         /* Versiering in de voet, links en rechts van de slogan */
         .foot .deco { position: relative; width: 104px; height: 96px; }
         .theme-halloween .foot p,
-        .theme-sinterklaas .foot p { margin: 0 44px; }
+        .theme-sinterklaas .foot p,
+        .theme-kerst .foot p,
+        .theme-oudennieuw .foot p { margin: 0 44px; }
+        .foot .deco svg { display: block; width: 100%; height: 100%; }
 
         /* ── HALLOWEEN ─────────────────────────────────────────────
            Pompoenoranje accent, paarse lucht (SKY_THEMES.halloween), vleermuizen, een heks
@@ -700,13 +705,298 @@
             100% { transform: translate(-30px, 210px) rotate(220deg); opacity: 0; }
         }
 
+        /* ── KERST ─────────────────────────────────────────────────
+           Warme kerst boven Bierum: donkergroen bord met kaarsgoud accent en hulstrode
+           kaartranden, een heldere winterlucht (SKY_THEMES.kerst) met lichte sneeuwval,
+           sneeuw op de daken, de dijk en de boomkruinen, lichtjes in de bomen, een verlichte
+           kerstboom naast de Sebastiaankerk, een ster boven de toren en na zonsondergang de
+           arreslee met rendieren langs de maan. Hulst in de titelband, een dennentak op de
+           bovenste kaarten met een kerstbal aan de Patat-kaart, en kerstboompjes in de voet. */
+        #stage.theme-kerst {
+            --accent: #f7c64e;                 /* kaarsgoud: prijzen, koppen */
+            --accent-rgb: 247, 198, 78;
+        }
+        .theme-kerst .land .lit { fill: #ffcf73; }
+        .theme-kerst .no-kerst { display: none; }   /* de bolle boom naast de kerk maakt plaats voor de kerstboom */
+
+        /* Sneeuw op daken, dijk en boomkruinen: 's avonds wat zachter */
+        .land .snow {
+            fill: none;
+            stroke: #eef3f8;
+            stroke-width: 7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: calc(0.95 - 0.3 * var(--night));
+        }
+
+        /* Lichtjes in de bomen en in de kerstboom: overdag flauw, 's avonds fel, in drie groepen fonkelend.
+           De animatie hangt aan .theme-kerst: binnen een verborgen SVG-groep zou hij anders doortikken. */
+        .land .xl { opacity: calc(0.45 + 0.55 * var(--night)); }
+        .theme-kerst .land .xl g { animation: xl-blink 2.8s ease-in-out infinite alternate; }
+        .theme-kerst .land .xl .b { animation-duration: 3.4s; animation-delay: -1.4s; }
+        .theme-kerst .land .xl .c { animation-duration: 2.2s; animation-delay: -0.7s; }
+        @keyframes xl-blink { from { opacity: 1; } to { opacity: 0.35; } }
+        .land .kglow { opacity: var(--night); }
+
+        /* Lichte sneeuwval: twee lagen met een tegel vol vlokken (JS), die vallen (translateY)
+           en zacht heen en weer wiegen (translateX). Vier bewegende elementen in totaal. */
+        .snowfall .sway {
+            position: absolute;
+            left: -40px;
+            top: 0;
+            width: 2240px;
+            height: 380px;
+            animation: sway 7s ease-in-out infinite alternate;
+        }
+        .snowfall .far { animation-duration: 10s; animation-delay: -4s; }
+        .snowfall .fall {
+            position: absolute;
+            left: 0;
+            top: -380px;
+            width: 100%;
+            height: 760px;
+            background-repeat: repeat;
+            animation: snow 14s linear infinite;
+            will-change: transform;
+        }
+        .snowfall .far .fall { animation-duration: 24s; opacity: 0.8; }
+        @keyframes snow { from { transform: translateY(0); } to { transform: translateY(380px); } }
+        @keyframes sway { from { transform: translateX(-26px); } to { transform: translateX(26px); } }
+
+        /* De ster boven de kerktoren, met een zachte gloed die 's avonds aangaat */
+        .kstar {
+            position: absolute;
+            left: 815px;                       /* midden boven de toren (x = 857) */
+            top: 4px;
+            width: 84px;
+            height: 96px;
+        }
+        .kstar svg { position: relative; display: block; width: 100%; height: 100%; }
+        .kstar .halo {
+            position: absolute;
+            left: -80px; top: -86px;
+            width: 244px; height: 244px;
+            opacity: var(--glow);
+        }
+        .kstar .halo div {
+            width: 100%; height: 100%;
+            background: radial-gradient(circle closest-side, rgba(255, 228, 150, 0.55), rgba(255, 214, 120, 0.16) 45%, rgba(255, 214, 120, 0) 100%);
+            animation: flicker 5s ease-in-out infinite alternate;
+        }
+
+        /* De arreslee met twee rendieren: alleen na zonsondergang, eens in de twee minuten
+           langs de maan (JS zet de baan, net als bij de heks) */
+        #stage:not(.after-sunset) .sleigh-lane { display: none; }
+        .sleigh-lane {
+            position: absolute;
+            left: 0; top: 0;
+            transition: transform 6s ease-in-out;
+        }
+        .sleigh {
+            animation: sleigh 120s linear infinite;
+            animation-delay: -104s;            /* eerste vlucht ±15 s na zonsondergang of het laden */
+            transform: translateX(-320px);
+            will-change: transform;
+        }
+        .sleigh .bob { animation: bob 2.4s ease-in-out infinite alternate; }
+        .sleigh svg {
+            display: block;
+            width: 340px;
+            height: 136px;
+            fill: #0b1322;
+            stroke: rgba(214, 228, 255, 0.5);  /* randlicht: zichtbaar tegen de nachtlucht */
+            stroke-width: 1.6;
+            stroke-linejoin: round;
+        }
+        .sleigh .rl { transform-origin: 0 0; animation: rl-front 0.5s ease-in-out infinite alternate; }
+        .sleigh .rb { animation-name: rl-back; }
+        .sleigh .far .rl { animation-delay: -0.25s; }
+        @keyframes sleigh {
+            0%   { transform: translateX(-320px); }
+            15%  { transform: translateX(2200px); }
+            100% { transform: translateX(2200px); }
+        }
+        @keyframes rl-front { from { transform: rotate(-55deg); } to { transform: rotate(10deg); } }
+        @keyframes rl-back  { from { transform: rotate(45deg); }  to { transform: rotate(-12deg); } }
+
+        /* Hulst voor "Menukaart" in de titelband */
+        .theme-kerst .band .eyebrow,
+        .theme-oudennieuw .band .eyebrow { display: flex; align-items: center; }
+        .band .holly {
+            width: 104px;
+            height: 80px;
+            margin: -18px 26px 0 0;            /* compenseert de padding-top van .eyebrow */
+        }
+
+        /* Kaarten: diep dennengroen met een hulstrode rand, dennentak (JS zet --pine) in de hoek */
+        .theme-kerst .card:not(.event) {
+            background-color: rgba(2, 14, 9, 0.40);
+            border-color: rgba(222, 72, 66, 0.42);
+        }
+        .theme-kerst .col > .card:first-child {
+            background-image: var(--pine);
+            background-repeat: no-repeat;
+            background-position: top right;
+        }
+        /* Kerstbal aan de dennentak van de Patat-kaart, schommelt zacht */
+        .theme-kerst #colRight > .card:first-child::after {
+            content: '';
+            position: absolute;
+            right: 116px;
+            top: 20px;
+            width: 46px;
+            height: 96px;
+            background: var(--bauble) no-repeat center top / contain;
+            transform-origin: 50% 0;
+            animation: swing 3.6s ease-in-out infinite alternate;
+        }
+        @keyframes swing { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+
+        /* ── OUD EN NIEUW ──────────────────────────────────────────
+           Middernachtsblauw bord met champagne-accent, serpentines op de bovenste kaarten,
+           klinkende glazen in de titelband, oliebollen en champagne in de voet. Overdag
+           carbidschieten met melkbussen op het erf (Gronings), na zonsondergang vuurwerk.
+           JS zet .nye op oudejaarsavond en in de nacht naar 1 januari (meer vuurwerk) en
+           .new-year op nieuwjaarsdag ("Gelukkig nieuwjaar" in de lucht). */
+        #stage.theme-oudennieuw {
+            --accent: #f3d27e;                 /* champagne */
+            --accent-rgb: 243, 210, 126;
+        }
+        .theme-oudennieuw .land .lit { fill: #ffd27a; }
+        .theme-oudennieuw .card:not(.event) {
+            background-color: rgba(4, 6, 22, 0.42);
+            border-color: rgba(var(--accent-rgb), 0.30);
+        }
+        .theme-oudennieuw .col > .card:first-child {
+            background-image: var(--streamers);
+            background-repeat: no-repeat;
+            background-position: top 8px right 8px;
+        }
+        .band .cheers {
+            width: 92px;
+            height: 96px;
+            margin: -22px 24px 0 0;
+        }
+
+        /* Vuurwerk: per pijl een opstijgend lichtje (.rocket, zo hoog als de klim, dus translateY(100%)
+           = vanaf de grond) en een ster die openspat (.burst). Alleen na zonsondergang; de extra
+           pijlen alleen op oudejaarsavond en in de nieuwjaarsnacht (.nye). */
+        #stage:not(.after-sunset) .fireworks,
+        #stage:not(.nye) .fw.extra { display: none; }
+        .fw { position: absolute; width: 0; height: 0; }
+        .fw .rocket {
+            position: absolute;
+            left: -2px;
+            top: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #fff6d8 0, rgba(255, 222, 160, 0.8) 6px, rgba(255, 200, 120, 0) 64px) no-repeat;
+            background-size: 4px 64px;
+            border-radius: 2px;
+            opacity: 0;
+            animation: rocket 5s ease-out infinite;
+        }
+        .fw .burst {
+            position: absolute;
+            display: block;
+            opacity: 0;
+            animation: burst 5s linear infinite;
+            will-change: transform, opacity;
+        }
+        @keyframes rocket {
+            0%        { transform: translateY(100%); opacity: 0; }
+            3%        { opacity: 1; }
+            28%       { transform: translateY(0); opacity: 1; }
+            30%, 100% { transform: translateY(0); opacity: 0; }
+        }
+        @keyframes burst {
+            0%, 28% { transform: scale(0.1); opacity: 0; }
+            30%     { transform: scale(0.3); opacity: 1; animation-timing-function: ease-out; }
+            50%     { transform: translateY(4px) scale(1); opacity: 1; animation-timing-function: ease-in; }
+            76%     { transform: translateY(18px) scale(1.1); opacity: 0; }
+            100%    { transform: translateY(18px) scale(1.1); opacity: 0; }
+        }
+
+        /* Carbidschieten: melkbussen op het erf. Eens per cyclus een knal: steekvlam, de bus
+           schokt terug en een rookwolk drijft weg. Alleen overdag (zo hoort het ook). */
+        .cb { position: absolute; }
+        .cb.mirror { transform: scaleX(-1); }
+        .cb svg { position: relative; display: block; width: 100%; height: 100%; }
+        .cb .gun { transform-origin: 30% 90%; animation: recoil 12s ease-out infinite; }
+        .cb .flash, .cb .smoke { position: absolute; border-radius: 50%; opacity: 0; }
+        .cb .flash {
+            left: 44px; top: -12px;
+            width: 50px; height: 50px;
+            background: radial-gradient(circle closest-side, #fff6c8, rgba(255, 176, 64, 0.85) 40%, rgba(255, 120, 30, 0) 100%);
+            animation: cb-flash 12s ease-out infinite;
+        }
+        .cb .smoke {
+            left: 50px; top: -8px;
+            width: 40px; height: 40px;
+            background: radial-gradient(circle closest-side, rgba(236, 236, 240, 0.9), rgba(236, 236, 240, 0.5) 50%, rgba(236, 236, 240, 0) 100%);
+            animation: cb-smoke 12s ease-out infinite;
+        }
+        #stage.after-sunset .cb .flash,
+        #stage.after-sunset .cb .smoke { display: none; }
+        #stage.after-sunset .cb .gun { animation: none; }
+        @keyframes recoil {
+            0%   { transform: translate(0, 0) rotate(0); }
+            0.6% { transform: translate(-6px, 0) rotate(-4deg); }
+            5%   { transform: translate(0, 0) rotate(0); }
+            100% { transform: translate(0, 0) rotate(0); }
+        }
+        @keyframes cb-flash {
+            0%   { opacity: 0; transform: scale(0.3); }
+            0.6% { opacity: 1; transform: scale(1); }
+            3%   { opacity: 0; transform: scale(1.4); }
+            100% { opacity: 0; transform: scale(1.4); }
+        }
+        @keyframes cb-smoke {
+            0%   { opacity: 0; transform: translate(0, 0) scale(0.4); }
+            1%   { opacity: 0.9; transform: translate(6px, -2px) scale(0.9); }
+            45%  { opacity: 0; transform: translate(80px, -56px) scale(2.6); }
+            100% { opacity: 0; transform: translate(80px, -56px) scale(2.6); }
+        }
+
+        /* "Gelukkig nieuwjaar" op nieuwjaarsdag, linksboven in de lucht (tegenover de klok) */
+        #stage:not(.new-year) .nieuwjaar { display: none; }
+        .nieuwjaar {
+            position: absolute;
+            left: 96px;
+            top: 40px;
+            text-shadow: 0 2px 28px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .nieuwjaar .big {
+            font-family: var(--serif);
+            font-size: 66px;                   /* blijft links van de kerktoren */
+            line-height: 1;
+            color: var(--accent);
+        }
+        .nieuwjaar .small {
+            font-size: 34px;
+            line-height: 1.2;
+            margin-top: 12px;
+            color: rgba(246, 240, 230, 0.92);
+        }
+
+        /* Bubbels in het champagneglas in de voet */
+        .foot .bub { animation: bubble 2.6s linear infinite; opacity: 0; }
+        @keyframes bubble {
+            0%   { transform: translateY(0); opacity: 0; }
+            15%  { opacity: 0.9; }
+            85%  { opacity: 0.9; }
+            100% { transform: translateY(-24px); opacity: 0; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .rotor, .stars .tw, .bat, .bat .bob, .bat svg, .witch .bob, .mist, .pk .glow div,
             .sk g, .boat .sail, .boat .puff, .sint .ride, .sint .leg, .sint .knee, .sint .pn,
             .theme-halloween #colRight > .card:first-child::before,
-            .theme-halloween #colRight > .card:first-child::after { animation: none; }
+            .theme-halloween #colRight > .card:first-child::after,
+            .land .xl g, .snowfall .sway, .snowfall .fall, .kstar .halo div, .sleigh .bob, .sleigh .rl,
+            .theme-kerst #colRight > .card:first-child::after,
+            .cb .gun, .foot .bub { animation: none; }
             .sk svg { transition: none; }
-            .witch, .sint { display: none; }
+            .witch, .sint, .sleigh, .fireworks, .cb .flash, .cb .smoke { display: none; }
         }
 
         ::-webkit-scrollbar { display: none; }
@@ -727,6 +1017,10 @@
         </div>
 
         <div class="sun" id="sun"></div>
+
+        <!-- Oud en nieuw: vuurwerk na zonsondergang (JS), achter het silhouet zodat de pijlen
+             tussen de huizen vandaan de lucht in gaan -->
+        <div class="fireworks t-oudennieuw" id="fireworks"></div>
 
         <!-- Silhouet van Bierum: wierde met de Sebastiaankerk en zijn steunbeer,
              kop-hals-rompboerderijen, bomen, de dijk en de turbines bij de Eemshaven -->
@@ -788,8 +1082,10 @@
             </g>
             <!-- dijk rechts -->
             <path d="M1440,300 C1700,272 1950,262 2160,266 L2160,300 Z"/>
-            <!-- wierde -->
+            <path class="snow t-kerst" d="M1440,300 C1700,272 1950,262 2160,266" stroke-width="6"/>
+            <!-- wierde (kerst: met sneeuw, die achter de gebouwen verdwijnt) -->
             <path d="M300,300 C500,296 650,262 830,258 C1010,254 1180,290 1400,300 Z"/>
+            <path class="snow t-kerst" d="M300,300 C500,296 650,262 830,258 C1010,254 1180,290 1400,300" stroke-width="6"/>
             <!-- bomen links -->
             <g class="leafy">
                 <rect x="165" y="250" width="10" height="50"/>
@@ -816,16 +1112,34 @@
             <path d="M886,262 L886,178 L1088,178 L1088,262 Z"/>
             <path d="M886,180 L886,140 L1064,140 L1093,180 Z"/>
             <path d="M700,300 L700,262 L1100,262 L1100,300 Z"/>
-            <!-- bomen rechts van de kerk -->
-            <g class="leafy">
+            <!-- bomen rechts van de kerk (de eerste maakt met kerst plaats voor de kerstboom) -->
+            <g class="leafy no-kerst">
                 <rect x="1125" y="244" width="10" height="56"/>
+                <circle cx="1130" cy="244" r="36"/>
+            </g>
+            <g class="leafy">
                 <rect x="1186" y="228" width="12" height="72"/>
                 <rect x="1257" y="240" width="10" height="60"/>
                 <rect x="1317" y="252" width="10" height="48"/>
-                <circle cx="1130" cy="244" r="36"/>
                 <circle cx="1192" cy="226" r="48"/>
                 <circle cx="1262" cy="240" r="42"/>
                 <circle cx="1322" cy="252" r="32"/>
+            </g>
+            <!-- Kerst: de kerstboom naast de Sebastiaankerk, met een gloed die 's avonds aangaat
+                 (lichtjes, piek en sneeuw tekent JS in #kerstLights) -->
+            <g class="t-kerst">
+                <defs>
+                    <radialGradient id="kGlow">
+                        <stop offset="0" stop-color="#ffd27a" stop-opacity="0.38"/>
+                        <stop offset="0.5" stop-color="#ffc35a" stop-opacity="0.12"/>
+                        <stop offset="1" stop-color="#ffc35a" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+                <circle class="kglow" cx="1132" cy="236" r="96" fill="url(#kGlow)"/>
+                <rect x="1127" y="284" width="10" height="16"/>
+                <path d="M1084,290 L1132,226 L1180,290 Q1132,281 1084,290 Z"/>
+                <path d="M1093,254 L1132,197 L1171,254 Q1132,246 1093,254 Z"/>
+                <path d="M1103,220 L1132,166 L1161,220 Q1132,213 1103,220 Z"/>
             </g>
             <!-- Halloween: kerkhof bij de Sebastiaankerk (de skeletten dansen ertussen) -->
             <g class="t-halloween">
@@ -841,6 +1155,14 @@
             <rect x="1690" y="220" width="8" height="18"/>
             <!-- grondlijn -->
             <rect x="0" y="297" width="2160" height="4"/>
+            <!-- Kerst: sneeuw op de daken, de schoorstenen, de steunbeer, de toren en het schip -->
+            <g class="t-kerst">
+                <path class="snow" d="M425,243 L449,215 L473,243 M476,252 L503,252 M507,236 L610,150 L713,236 M442,207 L448,207
+                    M711,254 L827,124 M827,52 L838,20 L876,20 L887,52 M888,140 L1063,140 L1091,178
+                    M1402,240 L1512,161 L1622,240 M1626,254 L1668,223 L1710,254 M1691,219 L1697,219"/>
+                <!-- sneeuw op de boomkruinen en lichtjes in de bomen en de kerstboom (JS) -->
+                <g id="kerstLights"></g>
+            </g>
             <!-- ramen die 's avonds oplichten (Halloween en Sinterklaas): boerderijen, toren en schip van de kerk -->
             <g class="lit">
                 <rect x="434" y="260" width="10" height="15"/>
@@ -951,6 +1273,21 @@
             </div>
         </div>
 
+        <!-- Kerst: de ster boven de kerktoren, de arreslee (alleen na zonsondergang) en lichte sneeuwval -->
+        <div class="kstar t-kerst"><div class="halo"><div></div></div><svg id="kStar" viewBox="-42 -36 84 96" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        <div class="sleigh-lane t-kerst" id="sleighLane"><div class="sleigh"><div class="bob" id="sleighArt"></div></div></div>
+        <div class="snowfall t-kerst" id="snowfall">
+            <div class="sway far"><div class="fall"></div></div>
+            <div class="sway near"><div class="fall"></div></div>
+        </div>
+
+        <!-- Oud en nieuw: melkbussen voor het carbidschieten (JS) en op nieuwjaarsdag een groet linksboven -->
+        <div id="carbide" class="t-oudennieuw"></div>
+        <div class="nieuwjaar t-oudennieuw">
+            <div class="big">Gelukkig nieuwjaar!</div>
+            <div class="small">Gelukkig nijjoar · <span id="nyYear"></span></div>
+        </div>
+
         <div class="clock">
             <div class="time" id="time">--:--</div>
             <div class="date" id="date"></div>
@@ -964,6 +1301,24 @@
             <path d="M6,82 L4,32 C8,18 20,7 30,1 C40,7 52,18 56,32 L54,82 Z" fill="#c8202f" stroke="#f2b636" stroke-width="2.4" stroke-linejoin="round"/>
             <path d="M5,68 L55,68 L54.5,82 L5.5,82 Z" fill="#f2b636"/>
             <path d="M26.5,24 h7 v9 h9 v7 h-9 v18 h-7 v-18 h-9 v-7 h9 Z" fill="#f2b636"/>
+        </svg><svg class="holly t-kerst" viewBox="0 0 104 80" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#2f8a4c">
+                <path transform="translate(47,44) rotate(205)" d="M0,0 Q6,-3 9,-11 Q14,-5 20,-13 Q26,-6 32,-12 Q36,-4 46,0 Q36,4 32,12 Q26,6 20,13 Q14,5 9,11 Q6,3 0,0 Z"/>
+                <path transform="translate(57,44) rotate(-25)" d="M0,0 Q6,-3 9,-11 Q14,-5 20,-13 Q26,-6 32,-12 Q36,-4 46,0 Q36,4 32,12 Q26,6 20,13 Q14,5 9,11 Q6,3 0,0 Z"/>
+            </g>
+            <path d="M47,44 L13,60 M57,44 L91,60" stroke="#1d5e33" stroke-width="2" stroke-linecap="round"/>
+            <g fill="#d8343a"><circle cx="46" cy="38" r="8"/><circle cx="59" cy="38" r="8"/><circle cx="52.5" cy="49" r="8"/></g>
+            <g fill="#ffffff" opacity="0.55"><circle cx="43.5" cy="35" r="2.2"/><circle cx="56.5" cy="35" r="2.2"/><circle cx="50" cy="46" r="2.2"/></g>
+        </svg><svg class="cheers t-oudennieuw" viewBox="0 0 92 96" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(30,68) rotate(14)">
+                <path d="M-8,-30 L8,-30 L6,-6 Q0,0 -6,-6 Z" fill="#f3d27e"/>
+                <path d="M-9,-46 L9,-46 L6,-6 Q0,0 -6,-6 Z M0,-2 L0,24 M-10,25 L10,25" fill="none" stroke="#f6f0e6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <g transform="translate(62,68) rotate(-14)">
+                <path d="M-8,-30 L8,-30 L6,-6 Q0,0 -6,-6 Z" fill="#f3d27e"/>
+                <path d="M-9,-46 L9,-46 L6,-6 Q0,0 -6,-6 Z M0,-2 L0,24 M-10,25 L10,25" fill="none" stroke="#f6f0e6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <path d="M46,2 L48.5,9 L56,10 L50,14.5 L52,22 L46,17.5 L40,22 L42,14.5 L36,10 L43.5,9 Z" fill="#f3d27e"/>
         </svg>Menukaart</div>
     </header>
 
@@ -976,7 +1331,11 @@
     <footer class="foot">
         <div class="deco pk t-halloween"></div>
         <div class="deco gift t-sinterklaas"></div>
+        <div class="deco ktree t-kerst"></div>
+        <div class="deco olie t-oudennieuw"></div>
         <p>Waar jong en oud elkaar ontmoeten!</p>
+        <div class="deco flute t-oudennieuw"></div>
+        <div class="deco ktree t-kerst"></div>
         <div class="deco gift t-sinterklaas"></div>
         <div class="deco pk t-halloween"></div>
     </footer>
@@ -1063,13 +1422,13 @@ const EVENT = {
    THEMA'S — gaan vanzelf aan op datum (lokale tijd), elke minuut opnieuw bepaald.
    'van' = eerste dag mét thema, 'tot' = eerste dag zónder (dus exclusief), als 'dd-mm'.
    Een periode mag over de jaargrens lopen (27-12 tot 02-01). Bij overlap wint de bovenste.
-   Testen: ?theme=halloween|sinterklaas|none, of een datum met ?t=2026-10-20T21:00.
+   Testen: ?theme=halloween|sinterklaas|kerst|oudennieuw|none, of een datum met ?t=2026-10-20T21:00.
    ═══════════════════════════════════════════════════════════════ */
 const THEMES = [
     { id: 'halloween',   van: '01-10', tot: '01-11' },   // heel oktober
     { id: 'sinterklaas', van: '01-11', tot: '06-12' },
-    { id: 'kerst',       van: '06-12', tot: '27-12' },   // nog zonder versiering
-    { id: 'oudennieuw',  van: '27-12', tot: '02-01' },   // nog zonder versiering
+    { id: 'kerst',       van: '06-12', tot: '27-12' },
+    { id: 'oudennieuw',  van: '27-12', tot: '02-01' },   // over de jaargrens
 ];
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1095,6 +1454,8 @@ const CHECK_MINUTES = 1;
     const timeEl = document.getElementById('time');
     const dateEl = document.getElementById('date');
     const witchLane = document.getElementById('witchLane');
+    const sleighLane = document.getElementById('sleighLane');
+    const nyYear = document.getElementById('nyYear');
 
     /* ── Menu opbouwen ─────────────────────────────────────────── */
     function esc(s) {
@@ -1206,6 +1567,242 @@ const CHECK_MINUTES = 1;
             return `<div class="gp" style="left:${x - w / 2}px;top:${380 - 1 - w}px;width:${w}px;height:${w}px">${redTop ? GIFT_GOLD : GIFT_RED}</div>`
                 + `<div class="gp" style="left:${x - t / 2 + w * 0.08}px;top:${380 - 1 - w - t * 0.82}px;width:${t}px;height:${t}px;transform:rotate(${redTop ? 8 : -8}deg)">${redTop ? GIFT_RED : GIFT_GOLD}</div>`;
         }).join('');
+    })();
+
+    /* Vaste seed, dus elke keer hetzelfde beeld (zelfde generator als bij de sterren) */
+    const seeded = seed => {
+        let a = seed;
+        return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    };
+    const f1 = v => v.toFixed(1);
+
+    /* Ster met vier lange punten (boven, rechts, onder, links) en vier korte schuine, rond (0,0) */
+    function starPath(up, side, down, diag, valley) {
+        const tips = [up, diag, side, diag, down, diag, side, diag];
+        let d = '';
+        for (let i = 0; i < 16; i++) {
+            const a = -Math.PI / 2 + i * Math.PI / 8;
+            const r = i % 2 ? valley : tips[i / 2];
+            d += (i ? 'L' : 'M') + f1(Math.cos(a) * r) + ',' + f1(Math.sin(a) * r);
+        }
+        return d + 'Z';
+    }
+
+    /* ── Kerst ─────────────────────────────────────────────────────
+       Alleen klaargezet; buiten het thema staat alles op display:none. */
+    (function buildKerst() {
+        /* Sneeuwval: per laag een tegel met een handvol vlokken, die naadloos herhaalt */
+        const snowTile = (w, n, rMin, rMax, seed) => {
+            const rnd = seeded(seed);
+            let s = '';
+            for (let i = 0; i < n; i++) {
+                const r = rMin + rnd() * (rMax - rMin);
+                s += `<circle cx="${f1(r + rnd() * (w - 2 * r))}" cy="${f1(r + (i + rnd()) / n * (SKY_H - 2 * r))}" r="${f1(r)}" opacity="${(0.65 + rnd() * 0.35).toFixed(2)}"/>`;
+            }
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${SKY_H}" viewBox="0 0 ${w} ${SKY_H}"><g fill="#ffffff">${s}</g></svg>`;
+        };
+        const [far, near] = document.querySelectorAll('#snowfall .fall');
+        far.style.backgroundImage = svgURL(snowTile(1080, 12, 1.6, 2.8, 61226));
+        far.style.backgroundSize = `1080px ${SKY_H}px`;
+        near.style.backgroundImage = svgURL(snowTile(720, 7, 3.2, 5.2, 241226));
+        near.style.backgroundSize = `720px ${SKY_H}px`;
+
+        /* Ster boven de toren en een kleine piek op de kerstboom */
+        document.getElementById('kStar').innerHTML =
+            `<path d="${starPath(26, 22, 34, 9, 4.5)}" fill="#fff4cf"/><circle r="4" fill="#ffffff"/>`;
+
+        /* Sneeuw op de bolle boomkruinen en lichtjes erin: [midden x, midden y, straal] */
+        const rnd = seeded(61227);
+        const LEAFY = [[170, 250, 40], [241, 230, 54], [320, 247, 44], [1192, 226, 48], [1262, 240, 42], [1322, 252, 32]];
+        const groups = { a: '', b: '', c: '' };
+        const keys = ['a', 'b', 'c'];
+        let caps = '', k = 0;
+        LEAFY.forEach(([cx, cy, r]) => {
+            const p = deg => [cx + Math.cos(deg * Math.PI / 180) * r, cy + Math.sin(deg * Math.PI / 180) * r];
+            const [x1, y1] = p(-152), [x2, y2] = p(-28);
+            caps += `M${f1(x1)},${f1(y1)} A${r},${r} 0 0 1 ${f1(x2)},${f1(y2)} `;
+            const n = Math.round(r / 8);
+            for (let i = 0; i < n; i++) {
+                const a = (rnd() * 300 - 240) * Math.PI / 180, d = r * (0.25 + rnd() * 0.5);
+                const warm = rnd() < 0.75;
+                groups[keys[k++ % 3]] += `<circle cx="${f1(cx + Math.cos(a) * d)}" cy="${f1(cy + 6 + Math.sin(a) * d * 0.8)}" r="3.2" fill="${warm ? '#ffe7a8' : '#ff8a6a'}"/>`;
+            }
+        });
+        /* Kerstboom: slingers gekleurde lampjes langs de onderrand van elke laag, met een lichte doorbuiging */
+        const BULBS = ['#ffd36b', '#ff5a4f', '#7cc8ff', '#ffd36b', '#ff9de0', '#8ef0a0'];
+        [[284, 40, 7], [248, 32, 6], [214, 23, 4], [190, 12, 2]].forEach(([y, half, n], row) => {
+            for (let i = 0; i < n; i++) {
+                const f = n === 1 ? 0.5 : i / (n - 1), x = 1132 - half + f * half * 2;
+                const sag = Math.sin(f * Math.PI) * 5;
+                groups[keys[k++ % 3]] += `<circle cx="${f1(x)}" cy="${f1(y - 4 + sag)}" r="3.4" fill="${BULBS[(i + row * 2) % BULBS.length]}"/>`;
+            }
+        });
+        document.getElementById('kerstLights').innerHTML =
+            `<path class="snow" d="${caps}" stroke-width="8"/>`
+            + `<path class="snow" d="M1110,219 Q1132,213 1154,219 M1100,253 Q1132,246 1164,253 M1092,289 Q1132,281 1172,289" stroke-width="5"/>`
+            + `<g class="xl"><g class="a">${groups.a}</g><g class="b">${groups.b}</g><g class="c">${groups.c}</g></g>`
+            + `<path d="${starPath(11, 9, 11, 4, 2.6)}" transform="translate(1132,163)" fill="#ffe08a"/>`;
+
+        /* Dennentak in de hoek van de bovenste kaarten, met hulstbessen */
+        const pine = (() => {
+            const P0 = [198, 6], C = [130, 10], P2 = [34, 40];
+            const at = t => [0, 1].map(i => (1 - t) * (1 - t) * P0[i] + 2 * (1 - t) * t * C[i] + t * t * P2[i]);
+            let dark = '', light = '';
+            for (let t = 0.03; t < 0.97; t += 0.045) {
+                const [x, y] = at(t), [xn, yn] = at(t + 0.01);
+                const ang = Math.atan2(yn - y, xn - x), L = 22 * (1 - 0.45 * t);
+                [-0.75, 0.75].forEach((s, j) => {
+                    const a = ang + s;
+                    const seg = `M${f1(x)},${f1(y)} L${f1(x + Math.cos(a) * L)},${f1(y + Math.sin(a) * L)} `;
+                    if (j) dark += seg; else light += seg;
+                });
+            }
+            /* zijtakje omlaag */
+            for (let t = 0.1; t < 0.95; t += 0.12) {
+                const x = 150 - t * 46, y = 14 + t * 44, ang = Math.atan2(44, -46), L = 15 * (1 - 0.4 * t);
+                [-0.75, 0.75].forEach((s, j) => {
+                    const a = ang + s;
+                    const seg = `M${f1(x)},${f1(y)} L${f1(x + Math.cos(a) * L)},${f1(y + Math.sin(a) * L)} `;
+                    if (j) dark += seg; else light += seg;
+                });
+            }
+            return '<svg xmlns="http://www.w3.org/2000/svg" width="210" height="110" viewBox="0 0 210 110">'
+                + `<path d="M${P0} Q${C} ${P2} M150,14 L104,58" fill="none" stroke="#6b4a2a" stroke-width="3" stroke-linecap="round"/>`
+                + `<g fill="none" stroke-width="2.6" stroke-linecap="round"><path d="${dark}" stroke="#3f8a55"/><path d="${light}" stroke="#62b076"/></g>`
+                + '<g fill="#d8343a"><circle cx="176" cy="20" r="7"/><circle cx="188" cy="27" r="7"/><circle cx="174" cy="33" r="7"/></g>'
+                + '<g fill="#ffffff" opacity="0.5"><circle cx="174" cy="18" r="2"/><circle cx="186" cy="25" r="2"/><circle cx="172" cy="31" r="2"/></g></svg>';
+        })();
+        const BAUBLE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 96">'
+            + '<path d="M23,0 L23,50" stroke="#f2c14e" stroke-width="2"/>'
+            + '<rect x="17.5" y="48" width="11" height="9" rx="2" fill="#e8b440"/>'
+            + '<circle cx="23" cy="74" r="21" fill="#c8263a"/>'
+            + '<path d="M2.5,70 Q23,78 43.5,70 L43.8,76 Q23,84 2.2,76 Z" fill="#f2c14e" opacity="0.9"/>'
+            + '<ellipse cx="15" cy="65" rx="6" ry="4" fill="#ffffff" opacity="0.45" transform="rotate(-30 15 65)"/></svg>';
+        stage.style.setProperty('--pine', svgURL(pine));
+        stage.style.setProperty('--bauble', svgURL(BAUBLE));
+
+        /* Kerstboompjes in de voet */
+        const KTREE = '<svg viewBox="-32 -34 64 64" xmlns="http://www.w3.org/2000/svg">'
+            + '<rect x="-4" y="20" width="8" height="9" fill="#7a4e2a"/>'
+            + '<path d="M-26,22 L0,-6 L26,22 Q0,17 -26,22 Z M-20,6 L0,-18 L20,6 Q0,2 -20,6 Z M-14,-8 L0,-27 L14,-8 Q0,-11 -14,-8 Z" fill="#2f8a4c"/>'
+            + '<g><circle cx="-12" cy="16" r="3" fill="#ff5a4f"/><circle cx="4" cy="18" r="3" fill="#ffd36b"/><circle cx="16" cy="15" r="3" fill="#7cc8ff"/>'
+            + '<circle cx="-7" cy="1" r="2.8" fill="#ffd36b"/><circle cx="9" cy="0" r="2.8" fill="#ff5a4f"/><circle cx="1" cy="-13" r="2.6" fill="#7cc8ff"/></g>'
+            + `<path d="${starPath(8, 7, 8, 3, 2.2)}" transform="translate(0,-28)" fill="#f7c64e"/></svg>`;
+        document.querySelectorAll('.foot .ktree').forEach(el => { el.innerHTML = KTREE; });
+
+        /* De arreslee met twee rendieren (naar rechts kijkend), silhouet met randlicht */
+        const leg = (x, cls) => `<g transform="translate(${x},6)"><g class="rl ${cls}"><path d="M-2.2,0 L2.2,0 L1.6,17 L-1.6,17 Z"/></g></g>`;
+        const deer = (tx, ty) => `<g transform="translate(${tx},${ty})">`
+            + `<g class="far">${leg(16, 'rf')}${leg(-12, 'rb')}</g>`
+            + '<path d="M-20,-4 L-29,-10 L-22,-1 Z"/>'
+            + '<ellipse rx="22" ry="9"/>'
+            + '<path d="M12,-5 L22,-20 L29,-17 L20,3 Z"/>'
+            + '<path d="M21,-23 C26,-27 33,-25 40,-20 C41,-17 39,-15 36,-15 L26,-14 Z"/>'
+            + '<path d="M24,-22 L18,-27 L22,-19 Z"/>'
+            + '<path d="M25,-24 L22,-34 L15,-39 M22,-34 L27,-42 M23,-30 L17,-31" fill="none" stroke-width="4" stroke-linecap="round"/>'
+            + '<path d="M25,-24 L22,-34 L15,-39 M22,-34 L27,-42 M23,-30 L17,-31" fill="none" stroke="#0b1322" stroke-width="2" stroke-linecap="round"/>'
+            + `<g class="near">${leg(14, 'rf')}${leg(-14, 'rb')}</g></g>`;
+        document.getElementById('sleighArt').innerHTML = '<svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">'
+            + '<path d="M88,57 Q130,50 188,52 M200,46 Q232,40 266,44" fill="none" stroke-width="1.4"/>'
+            + deer(170, 66) + deer(250, 60)
+            + '<circle cx="32" cy="52" r="14"/><path d="M27,39 L37,39 L32,45 Z"/>'
+            + '<path d="M48,66 C46,50 52,40 62,38 C72,38 78,48 76,66 Z"/>'
+            + '<path d="M70,47 L89,55 L87,60 L68,53 Z"/>'
+            + '<circle cx="64" cy="31" r="8"/>'
+            + '<path d="M56,28 C58,16 68,12 78,20 L85,27 L81,29 C77,25 73,23 70,24 L72,28 Z"/><circle cx="85" cy="29" r="3"/>'
+            + '<path d="M18,88 L18,58 C18,50 26,48 30,56 L36,66 L92,66 C102,66 106,76 100,88 Z"/>'
+            + '<path d="M30,86 L34,86 L34,97 L30,97 Z M84,86 L88,86 L88,97 L84,97 Z"/>'
+            + '<path d="M10,96 L104,96 C114,96 117,90 112,84 L115,82 C122,90 117,100 104,100 L10,100 Z"/></svg>';
+    })();
+
+    /* ── Oud en nieuw ──────────────────────────────────────────────── */
+    (function buildOudEnNieuw() {
+        /* Vuurwerk: [midden x, midden y, grootte, straalkleur, puntkleur, duur s, vertraging s, alleen op oudejaarsavond?] */
+        const LAUNCH_Y = 352;                  /* de pijlen gaan op tussen de huizen de lucht in */
+        const FIREWORKS = [
+            [ 330, 226, 150, '#ffd36b', '#fff4d6', 4.8, -0.4, 0],
+            [1010, 105, 210, '#ff6b6b', '#ffd6d6', 5.6, -2.3, 0],
+            [1530, 160, 160, '#7fd0ff', '#e6f7ff', 5.1, -3.8, 0],
+            [1960, 232, 130, '#c49cff', '#f1e6ff', 6.0, -1.2, 0],
+            [ 690, 214, 150, '#7dffa8', '#e4ffec', 3.9, -1.7, 1],
+            [ 860, 250, 110, '#ffd36b', '#ffffff', 3.4, -0.9, 1],
+            [1290, 205, 160, '#ff8fd8', '#ffe3f5', 4.2, -2.8, 1],
+            [1760, 250, 110, '#ffd36b', '#ffffff', 3.7, -0.3, 1],
+            [ 150, 236, 120, '#ff6b6b', '#ffffff', 4.4, -3.1, 1],
+            [1210,  80, 170, '#7fd0ff', '#ffffff', 3.6, -1.9, 1],
+        ];
+        const burstSVG = (c1, c2) => {
+            let rays = '', tips = '', inner = '';
+            for (let i = 0; i < 16; i++) {
+                const a = i * Math.PI / 8, c = Math.cos(a), s = Math.sin(a);
+                rays += `M${f1(c * 14)},${f1(s * 14)} L${f1(c * 40)},${f1(s * 40)} `;
+                tips += `<circle cx="${f1(c * 49)}" cy="${f1(s * 49)}" r="2.8"/>`;
+                if (i % 2) inner += `M${f1(c * 5)},${f1(s * 5)} L${f1(c * 20)},${f1(s * 20)} `;
+            }
+            return `<path d="${rays}" stroke="${c1}" stroke-width="3.2" stroke-linecap="round"/>`
+                + `<path d="${inner}" stroke="${c2}" stroke-width="2.4" stroke-linecap="round"/>`
+                + `<g fill="${c2}">${tips}</g>`;
+        };
+        document.getElementById('fireworks').innerHTML = FIREWORKS.map(([x, y, size, c1, c2, dur, delay, extra]) => {
+            const timing = `animation-duration:${dur}s;animation-delay:${delay}s`;
+            return `<div class="fw${extra ? ' extra' : ''}" style="left:${x}px;top:${y}px">`
+                + `<div class="rocket" style="height:${LAUNCH_Y - y}px;${timing}"></div>`
+                + `<svg class="burst" viewBox="-56 -56 112 112" width="${size}" height="${size}" style="left:${-size / 2}px;top:${-size / 2}px;${timing}">${burstSVG(c1, c2)}</svg></div>`;
+        }).join('');
+
+        /* Melkbus op zijn kant, iets omhoog gericht op een steen, voor het carbidschieten (mond rechts) */
+        const CHURN = '<svg viewBox="0 0 76 40" xmlns="http://www.w3.org/2000/svg">'
+            + '<path d="M16,40 L22,30 L36,30 L40,40 Z" fill="#4c4a48"/>'
+            + '<g class="gun"><g transform="rotate(-10 30 30)">'
+            + '<rect x="4" y="14" width="44" height="24" rx="5" fill="#aeb6bd"/>'
+            + '<rect x="4" y="27" width="44" height="11" rx="4" fill="#8d969d"/>'
+            + '<rect x="12" y="13" width="4" height="26" fill="#7f888f"/><rect x="36" y="13" width="4" height="26" fill="#7f888f"/>'
+            + '<path d="M48,17 L58,21 L58,31 L48,35 Z" fill="#9aa3aa"/>'
+            + '<rect x="58" y="20" width="10" height="12" fill="#aeb6bd"/><rect x="67" y="18" width="4" height="16" rx="1.5" fill="#c9d0d5"/>'
+            + '</g></g></svg>';
+        /* [midden x, breedte, gespiegeld (mond naar links)?, vertraging s, grond y] — links op het erf
+           naast de eerste boerderij, rechts op de dijk achter de tweede */
+        const CHURNS = [[392, 78, 1, -3, SKY_H - 1], [1756, 84, 0, -9, SKY_H - 22]];
+        document.getElementById('carbide').innerHTML = CHURNS.map(([x, w, mirror, delay, ground]) => {
+            const h = w * 40 / 76, d = `animation-delay:${delay}s`;
+            return `<div class="cb${mirror ? ' mirror' : ''}" style="left:${x - w / 2}px;top:${(ground - h).toFixed(1)}px;width:${w}px;height:${h.toFixed(1)}px">`
+                + `<div class="flash" style="${d}"></div>`
+                + `<div class="smoke" style="${d}"></div>`
+                + `<div class="smoke" style="animation-delay:${delay - 0.25}s;width:30px;height:30px;left:46px"></div>`
+                + `<div class="smoke" style="animation-delay:${delay + 0.4}s;width:48px;height:48px;top:-14px"></div>`
+                + CHURN.replace('class="gun"', `class="gun" style="${d}"`) + '</div>';
+        }).join('');
+
+        /* Voet: links een schaal oliebollen met poedersuiker, rechts een glas champagne met bubbels */
+        const OLIE = '<svg viewBox="-32 -34 64 64" xmlns="http://www.w3.org/2000/svg">'
+            + '<path d="M-30,16 Q0,30 30,16 L27,22 Q0,33 -27,22 Z" fill="#c9c2b3"/>'
+            + '<ellipse cx="0" cy="16" rx="30" ry="5.5" fill="#efe9dc"/>'
+            + '<circle cx="-14" cy="6" r="12" fill="#a8652c"/><circle cx="13" cy="6" r="12" fill="#a8652c"/><circle cx="-1" cy="-8" r="13" fill="#b8742f"/>'
+            + '<g fill="#7a4418"><circle cx="-18" cy="9" r="1.6"/><circle cx="-9" cy="11" r="1.4"/><circle cx="16" cy="10" r="1.6"/><circle cx="8" cy="3" r="1.4"/><circle cx="-4" cy="-4" r="1.6"/><circle cx="5" cy="-9" r="1.4"/></g>'
+            + '<g fill="#fbf7ef" opacity="0.92"><ellipse cx="-15" cy="-2" rx="7" ry="3"/><ellipse cx="13" cy="-2" rx="7" ry="3"/><ellipse cx="-2" cy="-17" rx="8" ry="3.4"/>'
+            + '<circle cx="-6" cy="-12" r="1.4"/><circle cx="4" cy="-14" r="1.2"/><circle cx="-19" cy="2" r="1.2"/><circle cx="18" cy="1" r="1.2"/></g></svg>';
+        const FLUTE = '<svg viewBox="-32 -34 64 64" xmlns="http://www.w3.org/2000/svg">'
+            + '<path d="M-8.5,-18 L8.5,-18 L6,4 Q0,10 -6,4 Z" fill="#f3d27e"/>'
+            + '<g fill="#fff8e2"><circle class="bub" cx="-2" cy="2" r="1.6"/><circle class="bub" cx="2.5" cy="0" r="1.3" style="animation-delay:-0.9s"/><circle class="bub" cx="0" cy="3" r="1.1" style="animation-delay:-1.7s"/></g>'
+            + '<path d="M-10,-30 L10,-30 L6,4 Q0,10 -6,4 Z M0,8 L0,26 M-11,27 L11,27" fill="none" stroke="#f6f0e6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
+            + `<path d="${starPath(7, 6, 7, 2.5, 1.8)}" transform="translate(19,-24)" fill="#f3d27e"/>`
+            + `<path d="${starPath(4.5, 4, 4.5, 1.6, 1.2)}" transform="translate(-20,-12)" fill="#f3d27e"/></svg>`;
+        const olie = document.querySelector('.foot .olie'), flute = document.querySelector('.foot .flute');
+        if (olie) olie.innerHTML = OLIE;
+        if (flute) flute.innerHTML = FLUTE;
+
+        /* Serpentines en confetti in de hoek van de bovenste kaarten */
+        const STREAMERS = '<svg xmlns="http://www.w3.org/2000/svg" width="180" height="120" viewBox="0 0 180 120">'
+            + '<g fill="none" stroke-width="3.4" stroke-linecap="round" opacity="0.8">'
+            + '<path d="M176,6 C158,20 168,34 148,40 C128,46 138,64 116,66 C100,68 106,84 90,86" stroke="#f3d27e"/>'
+            + '<path d="M174,32 C154,36 160,56 142,60 C126,64 130,82 112,84" stroke="#e8505b"/>'
+            + '<path d="M156,4 C142,12 134,6 124,16 C114,26 102,16 94,26" stroke="#6fb8ff"/></g>'
+            + '<g opacity="0.85"><rect x="72" y="40" width="8" height="4" fill="#f3d27e" transform="rotate(30 76 42)"/>'
+            + '<rect x="130" y="92" width="8" height="4" fill="#6fb8ff" transform="rotate(-20 134 94)"/>'
+            + '<rect x="100" y="104" width="7" height="4" fill="#e8505b" transform="rotate(50 103 106)"/>'
+            + '<rect x="160" y="70" width="7" height="4" fill="#f3d27e" transform="rotate(-40 163 72)"/>'
+            + '<circle cx="62" cy="18" r="3" fill="#e8505b"/><circle cx="150" cy="108" r="2.6" fill="#f3d27e"/><circle cx="84" cy="62" r="2.4" fill="#6fb8ff"/></g></svg>';
+        stage.style.setProperty('--streamers', svgURL(STREAMERS));
     })();
 
     /* ── Stage schalen naar het scherm ─────────────────────────────
@@ -1388,6 +1985,32 @@ const CHECK_MINUTES = 1;
             [ 10, '#44709e', '#94aec6', '#dcd2bc', '#47262f', '#28151a'],
             [ 22, '#4876a4', '#9ab4ca', '#c8d4dc', '#4a2930', '#2a171c'],
             [ 65, '#4a78a8', '#9cb8ce', '#c6d4de', '#4b2a31', '#2b181d'],
+        ],
+        /* Kerst: heldere, diepblauwe vriesnacht, een roze-oranje winterschemering en overdag
+           een bleke sneeuwlucht. Het bord is diep dennengroen. */
+        kerst: [
+            [-18, '#030a1c', '#081634', '#1c2a4a', '#0f2a1e', '#05130d'],
+            [-12, '#061230', '#122452', '#2e3a62', '#112d21', '#06150f'],
+            [ -7, '#0e1d4c', '#26386e', '#5a4870', '#133124', '#081811'],
+            [ -3, '#1a2f6c', '#4e5590', '#c0687a', '#153427', '#0a1a13'],
+            [  0, '#284a8a', '#76749e', '#f09466', '#18372a', '#0b1c14'],
+            [  4, '#3a649e', '#93a6c6', '#f4cc98', '#1b3d2f', '#0e2018'],
+            [ 10, '#5a80b0', '#a6bcd6', '#e4e4e0', '#1e4333', '#10241b'],
+            [ 22, '#6a8cba', '#b0c6dc', '#e2eaf0', '#20473a', '#12271e'],
+            [ 65, '#6a8cba', '#b2c8de', '#e6edf3', '#214838', '#12281e'],
+        ],
+        /* Oud en nieuw: middernachtsblauwe nacht met een vleug violet (mooi voor het vuurwerk),
+           overdag een koele grijze winterlucht. Bord middernachtsblauw. */
+        oudennieuw: [
+            [-18, '#04061a', '#0c1032', '#2c2258', '#111735', '#070a18'],
+            [-12, '#070a26', '#161c48', '#3a2c66', '#131a3a', '#080b1b'],
+            [ -7, '#0e1640', '#282e68', '#603e74', '#151c3c', '#0a0d1d'],
+            [ -3, '#18275e', '#4a4a86', '#b25c74', '#17203f', '#0b0f1f'],
+            [  0, '#263f80', '#6e6696', '#ea8a56', '#1b2546', '#0e1224'],
+            [  4, '#36588e', '#8a98ba', '#efbf86', '#1f2a4c', '#101528'],
+            [ 10, '#4b6c9a', '#9aaac2', '#d8d6d2', '#222e52', '#12182c'],
+            [ 22, '#5476a2', '#a2b2c8', '#d0d8e0', '#24315a', '#141a30'],
+            [ 65, '#5679a6', '#a6b6cc', '#d4dce4', '#25335c', '#151b32'],
         ],
     };
 
@@ -1587,7 +2210,16 @@ const CHECK_MINUTES = 1;
         const night = clamp((-sun.alt + 1) / 8, 0, 1);
         stage.style.setProperty('--night', night.toFixed(3));
         stage.style.setProperty('--glow', (0.3 + 0.7 * night).toFixed(3));
-        stage.classList.toggle('after-sunset', sun.alt < -0.833);
+        const afterSunset = sun.alt < -0.833;
+        stage.classList.toggle('after-sunset', afterSunset);
+
+        /* Oud en nieuw: .nye op oudejaarsavond en in de nacht naar 1 januari (uitbundiger vuurwerk),
+           .new-year op nieuwjaarsdag ("Gelukkig nieuwjaar" in de lucht) */
+        const month = t.getMonth(), day = t.getDate();
+        stage.classList.toggle('nye', theme === 'oudennieuw' && afterSunset
+            && ((month === 11 && day === 31) || (month === 0 && day === 1 && t.getHours() < 12)));
+        stage.classList.toggle('new-year', theme === 'oudennieuw' && month === 0);
+        nyYear.textContent = t.getFullYear();
 
         const sx = skyX(sun.az), sy = skyY(sun.alt);
         const sc = sunColour(sun.alt);
@@ -1618,6 +2250,11 @@ const CHECK_MINUTES = 1;
         if (theme === 'halloween') {
             const laneY = moonVis > 0.3 && moon.alt > 3 ? clamp(my - 88, 10, 190) : 60;
             witchLane.style.transform = `translateY(${laneY.toFixed(0)}px)`;
+        }
+        /* Kerst: de arreslee trekt voor de maan langs als die op is */
+        if (theme === 'kerst') {
+            const laneY = moonVis > 0.3 && moon.alt > 3 ? clamp(my - 64, 0, 200) : 50;
+            sleighLane.style.transform = `translateY(${laneY.toFixed(0)}px)`;
         }
     }
 
