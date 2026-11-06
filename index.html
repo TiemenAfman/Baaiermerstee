@@ -8,7 +8,7 @@
     <title>Baaiermerstee · Menukaart</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Young+Serif&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Creepster&family=Young+Serif&display=swap" rel="stylesheet">
     <style>
         /* ─────────────────────────────────────────────────────────────
            Baaiermerstee afhaalmenu · iiyama LH4375UHS in portrait
@@ -17,12 +17,16 @@
            ───────────────────────────────────────────────────────────── */
         :root {
             --accent: #f9a825;                 /* huisstijl-geel: prijzen, koppen, zon */
+            --accent-rgb: 249, 168, 37;        /* idem, voor rgba(); een thema zet beide */
             --ink: #f6f0e6;                    /* warm gebroken wit */
             --muted: rgba(246, 240, 230, 0.62);
             --ground-top: #3c4e5a;             /* wordt live gezet door JS */
             --ground-bottom: #27353e;
+            --night: 0;                        /* 0 = dag, 1 = nacht; wordt live gezet door JS */
+            --glow: 0.3;                       /* gloed van lampjes/kaarsjes, idem */
             --serif: 'Young Serif', Georgia, 'Times New Roman', serif;
             --sans: 'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif;
+            --spooky: 'Creepster', 'Young Serif', Georgia, serif;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -198,10 +202,11 @@
         /* Kaarten groeien naar rato van hun aantal regels (flex-grow via JS),
            zodat de witruimte tussen regels in beide kolommen gelijk uitkomt. */
         .card {
+            position: relative;
             display: flex;
             flex-direction: column;
             background: rgba(5, 10, 18, 0.40);
-            border: 2px solid rgba(249, 168, 37, 0.20);
+            border: 2px solid rgba(var(--accent-rgb), 0.20);
             border-radius: 32px;
             padding: 38px 46px 30px;
         }
@@ -221,7 +226,7 @@
             color: var(--accent);
             padding-bottom: 16px;
             margin-bottom: 14px;
-            border-bottom: 3px solid rgba(249, 168, 37, 0.38);
+            border-bottom: 3px solid rgba(var(--accent-rgb), 0.38);
         }
 
         .row {
@@ -263,8 +268,8 @@
 
         /* Activiteit-kaart (Noaberschap) */
         .card.event {
-            background: rgba(249, 168, 37, 0.10);
-            border-color: rgba(249, 168, 37, 0.5);
+            background: rgba(var(--accent-rgb), 0.10);
+            border-color: rgba(var(--accent-rgb), 0.5);
             padding: 40px 46px 42px;
         }
 
@@ -302,7 +307,7 @@
             margin: 18px 18px 0 0;
             padding: 14px 26px;
             border-radius: 999px;
-            border: 2px solid rgba(249, 168, 37, 0.55);
+            border: 2px solid rgba(var(--accent-rgb), 0.55);
             background: rgba(5, 10, 18, 0.28);
             font-size: 38px;
             line-height: 1;
@@ -361,8 +366,347 @@
             color: rgba(246, 240, 230, 0.9);
         }
 
+        /* ═══ THEMA'S ═════════════════════════════════════════════════
+           JS zet op #stage de klasse theme-<id> (op datum, zie THEMES bovenin het script)
+           en after-sunset zodra de zon onder is (officieel: −0,833°). Elementen met .t-<id>
+           horen bij één thema: zonder dat thema staan ze op display:none, dus ze tekenen
+           niet en hun animaties draaien niet (belangrijk op een signage-SoC/Raspberry Pi).
+           Kleuren van gewone elementen pas je aan onder .theme-<id>. */
+        #stage:not(.theme-halloween) .t-halloween,
+        #stage:not(.theme-sinterklaas) .t-sinterklaas { display: none !important; }
+
+        /* Verlichte ramen in het silhouet: gaan aan als het donker wordt (--night) */
+        .land .lit { fill: #ffb347; opacity: var(--night); }
+        #stage:not(.theme-halloween):not(.theme-sinterklaas) .land .lit { display: none; }
+
+        /* Versiering in de voet, links en rechts van de slogan */
+        .foot .deco { position: relative; width: 104px; height: 96px; }
+        .theme-halloween .foot p,
+        .theme-sinterklaas .foot p { margin: 0 44px; }
+
+        /* ── HALLOWEEN ─────────────────────────────────────────────
+           Pompoenoranje accent, paarse lucht (SKY_THEMES.halloween), vleermuizen, een heks
+           langs de maan, pompoenen, kale bomen, spinnenwebben en na zonsondergang
+           dansende skeletten op het kerkhof. */
+        #stage.theme-halloween {
+            --accent: #ff8c21;                 /* pompoenoranje: prijzen, koppen, kaartranden */
+            --accent-rgb: 255, 140, 33;
+            --spook: #c7a4ff;                  /* heksenpaars voor kleine accenten */
+        }
+        .theme-halloween .leafy { display: none; }   /* bolle bomen wijken voor kale */
+
+        /* Een flinke oogstmaan (wel op zijn echte plek en in zijn echte fase) */
+        .theme-halloween .moon { width: 104px; height: 104px; }
+        .theme-halloween .moon .disc  { fill: #fbe8c4; }
+        .theme-halloween .moon .shade { fill: #fbe8c4; }
+        .theme-halloween .moon svg    { filter: drop-shadow(0 0 22px rgba(251, 214, 150, 0.5)); }
+
+        /* Vleermuizen: vliegen (translateX), deinen (translateY) en klapperen (scaleY) */
+        .bat {
+            position: absolute;
+            left: 0;
+            animation: fly linear infinite;
+            will-change: transform;
+        }
+        .bat .bob { animation: bob ease-in-out infinite alternate; }
+        .bat svg {
+            display: block;
+            fill: #120a1a;
+            stroke: rgba(199, 164, 255, 0.55);  /* randlicht: zichtbaar tegen de nachtlucht */
+            stroke-width: 2.5;
+            animation: flap 0.32s ease-in-out infinite alternate;
+            transform-origin: 50% 40%;
+        }
+        @keyframes fly  { from { transform: translateX(-160px); } to { transform: translateX(2320px); } }
+        @keyframes bob  { from { transform: translateY(-16px); } to { transform: translateY(16px); } }
+        @keyframes flap { from { transform: scaleY(1); } to { transform: scaleY(0.3); } }
+
+        /* De heks: vliegt eens in de twee minuten voorbij, op de hoogte van de maan (JS zet de baan) */
+        .witch-lane {
+            position: absolute;
+            left: 0; top: 0;
+            transition: transform 6s ease-in-out;
+        }
+        .witch {
+            animation: witch 120s linear infinite;
+            animation-delay: -104s;            /* eerste vlucht ±15 s nadat het thema aangaat */
+            transform: translateX(-340px);
+            will-change: transform;
+        }
+        .witch .bob { animation: bob 2.6s ease-in-out infinite alternate; }
+        .witch svg  {
+            display: block;
+            width: 250px;
+            height: 150px;
+            fill: #120a1a;
+            stroke: rgba(199, 164, 255, 0.5);
+            stroke-width: 1.6;
+        }
+        @keyframes witch {
+            0%   { transform: translateX(-340px); }
+            15%  { transform: translateX(2200px); }
+            100% { transform: translateX(2200px); }
+        }
+
+        /* Grondmist die langzaam over het dorp trekt */
+        .mist {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 3240px;
+            height: 170px;
+            background:
+                radial-gradient(ellipse 520px 60px at 12% 78%, rgba(214, 196, 255, 0.26), rgba(214, 196, 255, 0) 100%),
+                radial-gradient(ellipse 640px 70px at 38% 86%, rgba(214, 196, 255, 0.22), rgba(214, 196, 255, 0) 100%),
+                radial-gradient(ellipse 480px 54px at 61% 80%, rgba(214, 196, 255, 0.24), rgba(214, 196, 255, 0) 100%),
+                radial-gradient(ellipse 600px 66px at 86% 84%, rgba(214, 196, 255, 0.22), rgba(214, 196, 255, 0) 100%);
+            animation: drift 90s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+        @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-1080px); } }
+
+        /* Pompoenen met een flakkerend kaarsje */
+        .pk { position: absolute; }
+        .pk svg { position: relative; display: block; width: 100%; height: 100%; }
+        .pk .glow {
+            position: absolute;
+            left: -90%; top: -90%;
+            width: 280%; height: 280%;
+            opacity: var(--glow);              /* door JS gezet: overdag zwak, 's avonds fel */
+        }
+        .pk .glow div {
+            width: 100%; height: 100%;
+            background: radial-gradient(circle closest-side, rgba(255, 150, 40, 0.55), rgba(255, 150, 40, 0.18) 45%, rgba(255, 150, 40, 0) 100%);
+            animation: flicker 2.3s ease-in-out infinite alternate;
+        }
+        @keyframes flicker {
+            0%   { opacity: 1; }
+            30%  { opacity: 0.72; }
+            55%  { opacity: 0.95; }
+            80%  { opacity: 0.64; }
+            100% { opacity: 0.9; }
+        }
+
+        /* Dansende skeletten op het kerkhof. Na zonsondergang (#stage.after-sunset) klimmen ze uit
+           de grond; bij zonsopgang verstijven ze en zakken ze weer weg. Onder de grond staat de dans stil.
+           Ledematen draaien om hun gewricht: elk lid is getekend vanaf (0,0) in een verschoven <g>. */
+        .sk {
+            position: absolute;
+            overflow: hidden;                  /* onderrand = grondlijn: wat eronder zit, is weg */
+        }
+        .sk svg {
+            display: block;
+            transform: translateY(100%);
+            transition: transform 3.5s ease-in;
+            will-change: transform;
+        }
+        #stage.after-sunset .sk svg {
+            transform: translateY(0);
+            transition: transform 4.5s ease-out;
+        }
+        .sk .hop, .sk .torso, .sk .head, .sk .arm, .sk .fore, .sk .thigh, .sk .shin {
+            transform-origin: 0 0;
+            animation-duration: 1.2s;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-play-state: paused;
+        }
+        #stage.after-sunset .sk g { animation-play-state: running; }
+        .sk .hop  { animation-name: sk-hop; }
+        .sk .head { animation-name: sk-nod; }
+        .sk .alt  { animation-delay: -0.6s; }  /* rechterkant (gespiegeld) een halve maat later */
+        .kick .torso { animation-name: kick-torso; }
+        .kick .arm   { animation-name: kick-arm; }
+        .kick .fore  { animation-name: kick-fore; }
+        .kick .thigh { animation-name: kick-thigh; }
+        .kick .shin  { animation-name: kick-shin; }
+        .wave .torso { animation-name: wave-torso; }
+        .wave .arm   { animation-name: wave-arm; }
+        .wave .fore  { animation-name: wave-fore; }
+        .wave .thigh { animation-name: wave-thigh; }
+        .wave .shin  { animation-name: wave-shin; }
+        @keyframes sk-hop { 0%, 50%, 100% { transform: translateY(0); } 25%, 75% { transform: translateY(-6px); } }
+        @keyframes sk-nod { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+        /* "kick": om en om een knie de lucht in, armen zwaaien tegengesteld */
+        @keyframes kick-torso { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(7deg); } 75% { transform: rotate(-7deg); } }
+        @keyframes kick-arm   { 0%, 100% { transform: rotate(150deg); } 25% { transform: rotate(115deg); } 50% { transform: rotate(35deg); } 75% { transform: rotate(80deg); } }
+        @keyframes kick-fore  { 0%, 100% { transform: rotate(-25deg); } 50% { transform: rotate(-80deg); } }
+        @keyframes kick-thigh { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(55deg); } }
+        @keyframes kick-shin  { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(-75deg); } }
+        /* "wave": handen in de lucht, heupen heen en weer, knieën om en om */
+        @keyframes wave-torso { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+        @keyframes wave-arm   { 0%, 100% { transform: rotate(160deg); } 50% { transform: rotate(130deg); } }
+        @keyframes wave-fore  { 0%, 100% { transform: rotate(-30deg); } 50% { transform: rotate(30deg); } }
+        @keyframes wave-thigh { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(16deg); } }
+        @keyframes wave-shin  { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-30deg); } }
+
+        /* Titel in griezelletters */
+        .theme-halloween .band h1 {
+            font-family: var(--spooky);
+            font-size: 176px;
+            letter-spacing: 0.02em;
+            color: var(--accent);
+            text-shadow: 0 4px 0 rgba(0, 0, 0, 0.35), 0 0 60px rgba(255, 140, 33, 0.25);
+        }
+        .theme-halloween .band .eyebrow { color: var(--spook); }
+
+        /* Kaarten: aubergine, spinnenweb (JS zet --web) in de hoek van de bovenste kaarten */
+        .theme-halloween .card:not(.event) { background-color: rgba(14, 5, 22, 0.42); }
+        .theme-halloween .col > .card:first-child {
+            background-image: var(--web);
+            background-repeat: no-repeat;
+            background-position: top right;
+        }
+
+        /* Spin aan een draadje onder het web van de Patat-kaart: draad rekt mee (scaleY), spin zakt mee */
+        .theme-halloween #colRight > .card:first-child::before,
+        .theme-halloween #colRight > .card:first-child::after {
+            content: '';
+            position: absolute;
+            animation: 4.2s ease-in-out infinite alternate;
+        }
+        .theme-halloween #colRight > .card:first-child::before {
+            right: 98px;
+            top: 0;
+            width: 2px;
+            height: 52px;
+            background: rgba(246, 240, 230, 0.45);
+            transform-origin: 50% 0;
+            animation-name: thread;
+        }
+        .theme-halloween #colRight > .card:first-child::after {
+            right: 69px;
+            top: 40px;
+            width: 60px;
+            height: 60px;
+            background: var(--spider) no-repeat center / contain;
+            animation-name: dangle;
+        }
+        @keyframes thread { from { transform: scaleY(1); }       to { transform: scaleY(1.3); } }
+        @keyframes dangle { from { transform: translateY(0); }  to { transform: translateY(15.6px); } }
+
+        /* ── SINTERKLAAS ───────────────────────────────────────────
+           Warme avondsfeer: wijnrood bord en goud accent, de stoomboot die achter de dijk
+           aanmeert, 's avonds verlichte ramen en de Sint op zijn schimmel die over de daken
+           rijdt en pepernoten strooit, een mijter in de titelband, gouden staf-krullen in de
+           hoeken van de bovenste kaarten en pakjes in de voet. */
+        #stage.theme-sinterklaas {
+            --accent: #f6b73c;                 /* goud */
+            --accent-rgb: 246, 183, 60;
+            --sint-red: #c8202f;
+        }
+        .theme-sinterklaas .land .lit { fill: #ffc45e; }
+
+        /* Kaarten: donker wijnrood met een rode rand, gouden staf-krul (JS zet --curl) in de hoek */
+        .theme-sinterklaas .card:not(.event) {
+            background-color: rgba(28, 4, 9, 0.40);
+            border-color: rgba(214, 52, 64, 0.42);
+        }
+        .theme-sinterklaas .col > .card:first-child {
+            background-image: var(--curl);
+            background-repeat: no-repeat;
+            background-position: top 14px right 14px;
+        }
+
+        /* Mijter voor "Menukaart" in de titelband */
+        .theme-sinterklaas .band .eyebrow { display: flex; align-items: center; }
+        .band .mitre {
+            width: 66px;
+            height: 92px;
+            margin: -18px 30px 0 0;            /* compenseert de padding-top van .eyebrow */
+            filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.25));
+        }
+
+        /* De stoomboot (in het silhouet, achter de dijk): vaart binnen, ligt een tijd aan,
+           verdwijnt in de mist en komt weer. Begint aangemeerd (negatieve delay). */
+        .boat .sail {
+            animation: boat-sail 300s linear infinite;
+            animation-delay: -150s;
+        }
+        @keyframes boat-sail {
+            0%    { transform: translateX(2290px); opacity: 1; animation-timing-function: ease-out; }
+            35%   { transform: translateX(1720px); opacity: 1; }
+            88%   { transform: translateX(1720px); opacity: 1; }
+            94%   { transform: translateX(1720px); opacity: 0; }
+            99.9% { transform: translateX(1720px); opacity: 0; }
+            100%  { transform: translateX(2290px); opacity: 0; }
+        }
+        .gp { position: absolute; }
+        .gp svg { display: block; }
+        .boat .port { fill: #ffd27a; opacity: var(--night); }
+        .boat .pennant { opacity: calc(0.9 - 0.6 * var(--night)); }
+        .boat .puff {
+            fill: rgba(236, 232, 242, 0.75);
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: puff 5s ease-out infinite;
+            opacity: 0;
+        }
+        @keyframes puff {
+            0%   { transform: translate(0, 0) scale(0.6); opacity: 0.8; }
+            100% { transform: translate(46px, -54px) scale(2.6); opacity: 0; }
+        }
+
+        /* De Sint op zijn schimmel: alleen na zonsondergang, eens in de 100 s over de daken */
+        #stage:not(.after-sunset) .sint-lane { display: none; }
+        .sint-lane {
+            position: absolute;
+            left: 0;
+            top: 44px;                         /* hoeven net boven de nok van de boerderijen */
+        }
+        .sint {
+            position: relative;
+            animation: sint-ride 100s linear infinite;
+            animation-delay: -88s;             /* eerste rit ±12 s nadat hij verschijnt */
+            transform: translateX(-280px);
+            will-change: transform;
+        }
+        @keyframes sint-ride {
+            0%   { transform: translateX(-280px); }
+            16%  { transform: translateX(2240px); }
+            100% { transform: translateX(2240px); }
+        }
+        .sint svg { display: block; width: 196px; height: 170px; }
+        .sint .ride { transform-origin: 100px 110px; animation: canter 0.62s ease-in-out infinite alternate; }
+        .sint .leg, .sint .knee { transform-origin: 0 0; animation: 0.62s ease-in-out infinite alternate; }
+        .sint .front    { animation-name: leg-front; }
+        .sint .back     { animation-name: leg-back; }
+        .sint .front .knee { animation-name: knee-front; }
+        .sint .back .knee  { animation-name: knee-back; }
+        .sint .far      { animation-delay: -0.16s; }
+        .sint .far .knee { animation-delay: -0.16s; }
+        @keyframes canter     { from { transform: translateY(4px) rotate(2deg); } to { transform: translateY(-6px) rotate(-3deg); } }
+        @keyframes leg-front  { from { transform: rotate(-48deg); } to { transform: rotate(22deg); } }
+        @keyframes knee-front { from { transform: rotate(0deg); }   to { transform: rotate(70deg); } }
+        @keyframes leg-back   { from { transform: rotate(-20deg); } to { transform: rotate(38deg); } }
+        @keyframes knee-back  { from { transform: rotate(-30deg); } to { transform: rotate(10deg); } }
+
+        /* Pepernoten die de Sint onderweg strooit: vallen recht omlaag (en rijden dus mee) */
+        .sint .pn {
+            position: absolute;
+            z-index: -1;                       /* komen achter de Sint vandaan */
+            left: 86px;
+            top: 84px;
+            width: 11px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #e3a868, #a8652c 70%);
+            animation: strooi 1.7s ease-in infinite;
+            opacity: 0;
+        }
+        @keyframes strooi {
+            0%   { transform: translate(0, 0) rotate(0); opacity: 1; }
+            80%  { opacity: 1; }
+            100% { transform: translate(-30px, 210px) rotate(220deg); opacity: 0; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
-            .rotor, .stars .tw { animation: none; }
+            .rotor, .stars .tw, .bat, .bat .bob, .bat svg, .witch .bob, .mist, .pk .glow div,
+            .sk g, .boat .sail, .boat .puff, .sint .ride, .sint .leg, .sint .knee, .sint .pn,
+            .theme-halloween #colRight > .card:first-child::before,
+            .theme-halloween #colRight > .card:first-child::after { animation: none; }
+            .sk svg { transition: none; }
+            .witch, .sint { display: none; }
         }
 
         ::-webkit-scrollbar { display: none; }
@@ -387,9 +731,7 @@
         <!-- Silhouet van Bierum: wierde met de Sebastiaankerk en zijn steunbeer,
              kop-hals-rompboerderijen, bomen, de dijk en de turbines bij de Eemshaven -->
         <svg class="land" viewBox="0 0 2160 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <!-- dijk rechts -->
-            <path d="M1440,300 C1700,272 1950,262 2160,266 L2160,300 Z"/>
-            <!-- windturbines Eemshaven -->
+            <!-- windturbines Eemshaven (de voet valt achter de dijk) -->
             <g>
                 <path d="M1864,268 L1872,268 L1870,178 L1866,178 Z"/>
                 <g transform="translate(1868,178)"><g class="rotor r1">
@@ -413,15 +755,52 @@
                     <path d="M0,0 L-4,-8 L-2,-50 L2,-50 L4,-8 Z" transform="rotate(240)"/>
                 </g></g>
             </g>
+            <!-- Sinterklaas: de stoomboot, vóór de turbines en achter de dijk (dus tussen die twee getekend), boeg links.
+                 Waterlijn op y = 0; de romp verdwijnt achter de dijk. -->
+            <g class="boat t-sinterklaas" transform="translate(0,281)">
+                <g class="sail">
+                    <path d="M0,-15 L5,-23 L176,-21 L172,-11 L164,6 L16,6 Z"/>
+                    <path d="M30,-21 L30,-35 L144,-35 L144,-21 Z"/>
+                    <path d="M54,-35 L54,-47 L120,-47 L120,-35 Z"/>
+                    <path d="M60,-47 L60,-56 L86,-56 L86,-47 Z"/>
+                    <path d="M97,-47 L100,-84 L115,-84 L116,-47 Z"/>
+                    <path d="M21,-23 L22,-82 L25.5,-82 L26.5,-23 Z"/>
+                    <path d="M168,-21 L169,-62 L172,-62 L172,-21 Z"/>
+                    <path d="M24,-82 L107,-84 L170,-62" fill="none" stroke="currentColor" stroke-width="1.4"/>
+                    <g class="pennant">
+                        <path d="M36,-82.3 L39,-74 L42,-82.4 Z M60,-82.9 L63,-74.6 L66,-83 Z M84,-83.4 L87,-75 L90,-83.5 Z" fill="#c8202f"/>
+                        <path d="M48,-82.6 L51,-74.3 L54,-82.7 Z M72,-83.1 L75,-74.8 L78,-83.2 Z M126,-78.6 L129,-70 L132,-77.6 Z" fill="#f6b73c"/>
+                        <path d="M140,-73.8 L143,-65.4 L146,-72.8 Z M154,-69 L157,-60.6 L160,-68 Z" fill="#c8202f"/>
+                        <path d="M26,-82 L44,-78 L26,-73 Z" fill="#c8202f"/>
+                    </g>
+                    <g class="port">
+                        <circle cx="40" cy="-28" r="3.2"/><circle cx="54" cy="-28" r="3.2"/><circle cx="68" cy="-28" r="3.2"/>
+                        <circle cx="82" cy="-28" r="3.2"/><circle cx="96" cy="-28" r="3.2"/><circle cx="110" cy="-28" r="3.2"/>
+                        <circle cx="124" cy="-28" r="3.2"/><circle cx="136" cy="-28" r="3.2"/>
+                        <rect x="62" y="-44" width="9" height="6"/><rect x="76" y="-44" width="9" height="6"/>
+                        <rect x="90" y="-44" width="9" height="6"/><rect x="64" y="-54" width="18" height="5"/>
+                    </g>
+                    <circle class="puff" cx="108" cy="-90" r="7"/>
+                    <circle class="puff" cx="108" cy="-90" r="7" style="animation-delay:-1.25s"/>
+                    <circle class="puff" cx="108" cy="-90" r="7" style="animation-delay:-2.5s"/>
+                    <circle class="puff" cx="108" cy="-90" r="7" style="animation-delay:-3.75s"/>
+                </g>
+            </g>
+            <!-- dijk rechts -->
+            <path d="M1440,300 C1700,272 1950,262 2160,266 L2160,300 Z"/>
             <!-- wierde -->
             <path d="M300,300 C500,296 650,262 830,258 C1010,254 1180,290 1400,300 Z"/>
             <!-- bomen links -->
-            <rect x="165" y="250" width="10" height="50"/>
-            <rect x="235" y="232" width="12" height="68"/>
-            <rect x="315" y="248" width="10" height="52"/>
-            <circle cx="170" cy="250" r="40"/>
-            <circle cx="241" cy="230" r="54"/>
-            <circle cx="320" cy="247" r="44"/>
+            <g class="leafy">
+                <rect x="165" y="250" width="10" height="50"/>
+                <rect x="235" y="232" width="12" height="68"/>
+                <rect x="315" y="248" width="10" height="52"/>
+                <circle cx="170" cy="250" r="40"/>
+                <circle cx="241" cy="230" r="54"/>
+                <circle cx="320" cy="247" r="44"/>
+            </g>
+            <!-- Halloween: kale bomen links en rechts van de kerk, getekend door JS (buildTrees) -->
+            <g id="trees" class="t-halloween" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></g>
             <!-- boerderij 1: kop-hals-romp -->
             <path d="M424,300 L424,244 L449,214 L474,244 L474,300 Z"/>
             <rect x="441" y="208" width="8" height="16"/>
@@ -438,21 +817,139 @@
             <path d="M886,180 L886,140 L1064,140 L1093,180 Z"/>
             <path d="M700,300 L700,262 L1100,262 L1100,300 Z"/>
             <!-- bomen rechts van de kerk -->
-            <rect x="1125" y="244" width="10" height="56"/>
-            <rect x="1186" y="228" width="12" height="72"/>
-            <rect x="1257" y="240" width="10" height="60"/>
-            <rect x="1317" y="252" width="10" height="48"/>
-            <circle cx="1130" cy="244" r="36"/>
-            <circle cx="1192" cy="226" r="48"/>
-            <circle cx="1262" cy="240" r="42"/>
-            <circle cx="1322" cy="252" r="32"/>
+            <g class="leafy">
+                <rect x="1125" y="244" width="10" height="56"/>
+                <rect x="1186" y="228" width="12" height="72"/>
+                <rect x="1257" y="240" width="10" height="60"/>
+                <rect x="1317" y="252" width="10" height="48"/>
+                <circle cx="1130" cy="244" r="36"/>
+                <circle cx="1192" cy="226" r="48"/>
+                <circle cx="1262" cy="240" r="42"/>
+                <circle cx="1322" cy="252" r="32"/>
+            </g>
+            <!-- Halloween: kerkhof bij de Sebastiaankerk (de skeletten dansen ertussen) -->
+            <g class="t-halloween">
+                <path d="M1144,300 L1144,274 A12,12 0 0 1 1168,274 L1168,300 Z"/>
+                <rect x="1222" y="252" width="8" height="48"/>
+                <rect x="1212" y="263" width="28" height="7"/>
+                <path d="M1276,300 L1276,279 A13,13 0 0 1 1302,279 L1302,300 Z"/>
+                <path d="M1340,300 L1340,282 A10,10 0 0 1 1360,282 L1360,300 Z" transform="rotate(-8 1350 300)"/>
+            </g>
             <!-- boerderij 2 -->
             <path d="M1400,300 L1400,242 L1512,160 L1624,242 L1624,300 Z"/>
             <path d="M1624,300 L1624,256 L1668,222 L1712,256 L1712,300 Z"/>
             <rect x="1690" y="220" width="8" height="18"/>
             <!-- grondlijn -->
             <rect x="0" y="297" width="2160" height="4"/>
+            <!-- ramen die 's avonds oplichten (Halloween en Sinterklaas): boerderijen, toren en schip van de kerk -->
+            <g class="lit">
+                <rect x="434" y="260" width="10" height="15"/>
+                <rect x="454" y="260" width="10" height="15"/>
+                <circle cx="610" cy="206" r="7"/>
+                <path d="M854,90 L854,75 Q859,67 864,75 L864,90 Z"/>
+                <rect x="857.5" y="114" width="3" height="10"/>
+                <path d="M917,223 L917,207 Q922,199 927,207 L927,223 Z"/>
+                <path d="M953,223 L953,207 Q958,199 963,207 L963,223 Z"/>
+                <path d="M989,223 L989,207 Q994,199 999,207 L999,223 Z"/>
+                <path d="M1025,223 L1025,207 Q1030,199 1035,207 L1035,223 Z"/>
+                <path d="M1061,223 L1061,207 Q1066,199 1071,207 L1071,223 Z"/>
+                <rect x="1438" y="262" width="12" height="16"/>
+                <rect x="1468" y="262" width="12" height="16"/>
+                <rect x="1562" y="262" width="12" height="16"/>
+                <circle cx="1512" cy="206" r="8"/>
+                <rect x="1662" y="266" width="10" height="14"/>
+            </g>
         </svg>
+
+        <!-- Halloween: dansende skeletten (JS), vleermuizen (JS), de heks, grondmist en pompoenen (JS) -->
+        <div id="skeletons" class="t-halloween"></div>
+        <div id="bats" class="t-halloween"></div>
+        <div class="witch-lane t-halloween" id="witchLane">
+            <div class="witch"><div class="bob">
+                <svg viewBox="0 0 250 150" xmlns="http://www.w3.org/2000/svg">
+                    <!-- bezem -->
+                    <path d="M30,116 L238,96 L240,101 L31,121 Z"/>
+                    <path d="M60,113 C42,103 18,97 2,101 C12,109 10,121 4,133 C20,127 42,127 62,121 Z"/>
+                    <!-- cape, lijf, arm, been -->
+                    <path d="M146,58 C118,54 90,62 66,86 C80,84 86,90 84,98 C94,92 104,96 108,104 C116,98 126,100 132,106 Z"/>
+                    <path d="M118,108 C120,88 130,66 146,58 C160,54 170,64 168,78 C166,90 162,100 160,106 Z"/>
+                    <path d="M160,72 C172,78 182,86 193,95 L189,100 C178,93 166,87 155,83 Z"/>
+                    <circle cx="192" cy="97" r="4.5"/>
+                    <path d="M148,104 C162,108 172,116 177,124 L188,126 C191,129 187,132 180,131 L168,131 C163,122 152,115 138,111 Z"/>
+                    <!-- hoofd, neus, kin, haren, hoed -->
+                    <circle cx="160" cy="47" r="11"/>
+                    <path d="M168,44 L182,51 L168,53 Z"/>
+                    <path d="M162,55 L172,62 L158,57 Z"/>
+                    <path d="M151,40 C136,45 127,56 120,70 C133,61 141,58 151,55 Z"/>
+                    <path d="M132,39 C148,31 174,28 192,34 C175,39 150,41 132,39 Z"/>
+                    <path d="M147,36 L176,32 C170,21 162,12 151,6 C141,1 132,3 125,10 C138,10 146,19 147,36 Z"/>
+                </svg>
+            </div></div>
+        </div>
+        <div class="mist t-halloween"></div>
+        <div id="pumpkins" class="t-halloween"></div>
+
+        <!-- Sinterklaas: stapeltjes pakjes op de grondlijn (JS) -->
+        <div id="giftPiles" class="t-sinterklaas"></div>
+
+        <!-- Sinterklaas: de Sint op zijn schimmel, met staf en mijter, strooit pepernoten (alleen na zonsondergang) -->
+        <div class="sint-lane t-sinterklaas">
+            <div class="sint">
+                <span class="pn"></span>
+                <span class="pn" style="left:92px;animation-delay:-0.45s;animation-duration:1.9s"></span>
+                <span class="pn" style="left:80px;animation-delay:-0.9s;animation-duration:1.6s"></span>
+                <span class="pn" style="left:96px;animation-delay:-1.3s;animation-duration:1.8s"></span>
+                <svg viewBox="0 -28 210 182" xmlns="http://www.w3.org/2000/svg">
+                    <g class="ride">
+                        <!-- benen aan de verre kant (iets donkerder), dan staart, lijf, hals en hoofd -->
+                        <g fill="#cfc8bb">
+                            <g transform="translate(146,102)"><g class="leg front far">
+                                <path d="M-5,-4 L5,-4 L4,24 L-4,24 Z"/>
+                                <g transform="translate(0,23)"><g class="knee"><path d="M-3.5,0 L3.5,0 L3,20 L-3,20 Z"/><path d="M-4.5,18 L5,18 L5.5,24 L-4.5,24 Z" fill="#5f574f"/></g></g>
+                            </g></g>
+                            <g transform="translate(80,100)"><g class="leg back far">
+                                <path d="M-7,-6 L7,-6 L5,24 L-4,24 Z"/>
+                                <g transform="translate(0,23)"><g class="knee"><path d="M-3.5,0 L3.5,0 L3,20 L-3,20 Z"/><path d="M-4.5,18 L5,18 L5.5,24 L-4.5,24 Z" fill="#5f574f"/></g></g>
+                            </g></g>
+                        </g>
+                        <path d="M62,88 C46,84 34,92 28,108 C38,104 44,104 50,101 C44,111 42,120 45,129 C54,116 60,105 66,96 Z" fill="#d9d3c8"/>
+                        <g fill="#f2eee6">
+                            <path d="M58,92 C58,80 74,76 92,78 L132,76 C148,76 158,84 158,94 C158,106 148,112 134,112 L80,112 C66,112 58,104 58,92 Z"/>
+                            <path d="M138,84 C146,66 154,52 164,43 L180,50 C174,62 166,80 158,98 Z"/>
+                            <path d="M162,42 C168,33 181,32 186,39 L199,59 C202,66 195,71 188,67 L173,57 C166,54 160,50 162,42 Z"/>
+                            <path d="M168,37 L170,26 L176,35 Z"/>
+                        </g>
+                        <path d="M163,40 C155,50 147,62 141,80" fill="none" stroke="#d9d3c8" stroke-width="7" stroke-linecap="round"/>
+                        <circle cx="181" cy="47" r="2.2" fill="#3a302a"/>
+                        <!-- benen aan de voorkant -->
+                        <g fill="#f2eee6">
+                            <g transform="translate(140,104)"><g class="leg front">
+                                <path d="M-5,-4 L5,-4 L4,24 L-4,24 Z"/>
+                                <g transform="translate(0,23)"><g class="knee"><path d="M-3.5,0 L3.5,0 L3,20 L-3,20 Z"/><path d="M-4.5,18 L5,18 L5.5,24 L-4.5,24 Z" fill="#5f574f"/></g></g>
+                            </g></g>
+                            <g transform="translate(74,102)"><g class="leg back">
+                                <path d="M-7,-6 L7,-6 L5,24 L-4,24 Z"/>
+                                <g transform="translate(0,23)"><g class="knee"><path d="M-3.5,0 L3.5,0 L3,20 L-3,20 Z"/><path d="M-4.5,18 L5,18 L5.5,24 L-4.5,24 Z" fill="#5f574f"/></g></g>
+                            </g></g>
+                        </g>
+                        <!-- teugel -->
+                        <path d="M139,58 C158,64 176,62 191,63" fill="none" stroke="#6b4a2a" stroke-width="1.8"/>
+                        <!-- de Sint: rode mantel met gouden zoom, witte baard, mijter en staf -->
+                        <path d="M84,74 C86,58 96,46 106,42 L124,44 C130,56 132,72 130,92 C118,98 98,99 84,92 Z" fill="#b51e2b"/>
+                        <path d="M124,44 C130,56 132,72 130,92 C118,98 98,99 84,92" fill="none" stroke="#f2b636" stroke-width="3"/>
+                        <path d="M118,48 C126,52 132,55 138,57 L136,64 C128,62 120,58 113,54 Z" fill="#9d1824"/>
+                        <circle cx="139" cy="60" r="3.8" fill="#f6f1e7"/>
+                        <path d="M138,94 L142,-6" stroke="#f2b636" stroke-width="3.4" stroke-linecap="round"/>
+                        <path d="M142,-6 C143,-18 156,-20 158,-10 C159,-2 150,1 148,-5" fill="none" stroke="#f2b636" stroke-width="3.4" stroke-linecap="round"/>
+                        <circle cx="117" cy="26" r="6.5" fill="#ecc4a2"/>
+                        <path d="M109,24 C107,36 111,46 119,48 C126,44 128,34 126,24 C122,29 113,29 109,24 Z" fill="#fbf8f2"/>
+                        <path d="M107,20 L108,-2 C111,-12 116,-17 117.5,-19 C119,-17 124,-12 127,-2 L128,20 Z" fill="#c8202f"/>
+                        <path d="M107,15 L128,15 L128,20 L107,20 Z" fill="#f2b636"/>
+                        <path d="M116,-6 h3 v4 h4 v3 h-4 v7 h-3 v-7 h-4 v-3 h4 Z" fill="#f2b636"/>
+                    </g>
+                </svg>
+            </div>
+        </div>
 
         <div class="clock">
             <div class="time" id="time">--:--</div>
@@ -463,7 +960,11 @@
     <!-- ── TITEL ──────────────────────────────────────────────── -->
     <header class="band">
         <h1>Baaiermerstee</h1>
-        <div class="eyebrow">Menukaart</div>
+        <div class="eyebrow"><svg class="mitre t-sinterklaas" viewBox="0 0 60 84" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6,82 L4,32 C8,18 20,7 30,1 C40,7 52,18 56,32 L54,82 Z" fill="#c8202f" stroke="#f2b636" stroke-width="2.4" stroke-linejoin="round"/>
+            <path d="M5,68 L55,68 L54.5,82 L5.5,82 Z" fill="#f2b636"/>
+            <path d="M26.5,24 h7 v9 h9 v7 h-9 v18 h-7 v-18 h-9 v-7 h9 Z" fill="#f2b636"/>
+        </svg>Menukaart</div>
     </header>
 
     <!-- ── MENU ───────────────────────────────────────────────── -->
@@ -473,7 +974,11 @@
     </main>
 
     <footer class="foot">
+        <div class="deco pk t-halloween"></div>
+        <div class="deco gift t-sinterklaas"></div>
         <p>Waar jong en oud elkaar ontmoeten!</p>
+        <div class="deco gift t-sinterklaas"></div>
+        <div class="deco pk t-halloween"></div>
     </footer>
 </div>
 
@@ -555,6 +1060,19 @@ const EVENT = {
 };
 
 /* ═══════════════════════════════════════════════════════════════
+   THEMA'S — gaan vanzelf aan op datum (lokale tijd), elke minuut opnieuw bepaald.
+   'van' = eerste dag mét thema, 'tot' = eerste dag zónder (dus exclusief), als 'dd-mm'.
+   Een periode mag over de jaargrens lopen (27-12 tot 02-01). Bij overlap wint de bovenste.
+   Testen: ?theme=halloween|sinterklaas|none, of een datum met ?t=2026-10-20T21:00.
+   ═══════════════════════════════════════════════════════════════ */
+const THEMES = [
+    { id: 'halloween',   van: '01-10', tot: '01-11' },   // heel oktober
+    { id: 'sinterklaas', van: '01-11', tot: '06-12' },
+    { id: 'kerst',       van: '06-12', tot: '27-12' },   // nog zonder versiering
+    { id: 'oudennieuw',  van: '27-12', tot: '02-01' },   // nog zonder versiering
+];
+
+/* ═══════════════════════════════════════════════════════════════
    Locatie voor de zonnestand: dorpshuis Baaiermerstee, Bierum
    ═══════════════════════════════════════════════════════════════ */
 const LAT = 53.4167, LON = 6.8667;
@@ -576,6 +1094,7 @@ const CHECK_MINUTES = 1;
     const starsEl = document.getElementById('stars');
     const timeEl = document.getElementById('time');
     const dateEl = document.getElementById('date');
+    const witchLane = document.getElementById('witchLane');
 
     /* ── Menu opbouwen ─────────────────────────────────────────── */
     function esc(s) {
@@ -628,6 +1147,66 @@ const CHECK_MINUTES = 1;
     document.getElementById('colRight').innerHTML = MENU.right.map(cardHTML).join('');
     fitRows();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitRows);
+
+    /* ── Thema-versiering op de kaarten en in de voet ──────────────
+       Alleen klaargezet; de CSS onder .theme-<id> bepaalt of het te zien is. */
+    const svgURL = svg => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+
+    /* Halloween: spinnenweb in de hoek van de bovenste kaarten, spin bij de Patat */
+    function webSVG(S) {
+        /* draden vanuit de hoek rechtsboven, ringen die naar de hoek toe doorzakken */
+        const angles = [2, 17, 33, 50, 67, 88].map(a => a * Math.PI / 180);
+        const pt = (a, r) => [S - Math.cos(a) * r, Math.sin(a) * r];
+        let d = '';
+        angles.forEach(a => { const [x, y] = pt(a, S * 0.98); d += `M${S},0 L${x.toFixed(1)},${y.toFixed(1)} `; });
+        [0.16, 0.3, 0.45, 0.6, 0.76, 0.9].forEach(f => {
+            const r = S * f;
+            for (let i = 0; i < angles.length - 1; i++) {
+                const [x1, y1] = pt(angles[i], r), [x2, y2] = pt(angles[i + 1], r);
+                const [cx, cy] = pt((angles[i] + angles[i + 1]) / 2, r * 0.8);
+                d += `M${x1.toFixed(1)},${y1.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} `;
+            }
+        });
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}"><path d="${d}" fill="none" stroke="rgba(246,240,230,0.34)" stroke-width="2"/></svg>`;
+    }
+
+    const SPIDER = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">'
+        + '<g fill="none" stroke="#e8def7" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">'
+        + '<path d="M18,14 L9,7 L4,12 M16,19 L6,16 L1,22 M17,24 L7,27 L3,34 M19,28 L11,35 L10,43"/>'
+        + '<path d="M30,14 L39,7 L44,12 M32,19 L42,16 L47,22 M31,24 L41,27 L45,34 M29,28 L37,35 L38,43"/></g>'
+        + '<circle cx="24" cy="18" r="9" fill="#e8def7"/><circle cx="24" cy="31" r="5.5" fill="#e8def7"/>'
+        + '<circle cx="22" cy="32.5" r="1.4" fill="#ff8c21"/><circle cx="26" cy="32.5" r="1.4" fill="#ff8c21"/></svg>';
+
+    /* Sinterklaas: gouden krul als de bovenkant van een staf, in de hoek van de bovenste kaarten */
+    const CURL = '<svg xmlns="http://www.w3.org/2000/svg" width="132" height="96" viewBox="0 0 132 96">'
+        + '<g fill="none" stroke="rgba(246,183,60,0.6)" stroke-width="4" stroke-linecap="round">'
+        + '<path d="M18,8 L80,8 C108,8 124,26 122,48 C120,72 96,82 82,70 C70,60 78,42 92,44 C102,46 104,58 96,62"/>'
+        + '<path d="M18,18 L64,18" stroke-width="2.4" stroke="rgba(246,183,60,0.4)"/></g>'
+        + '<path d="M2,8 L8,2 L14,8 L8,14 Z" fill="rgba(246,183,60,0.6)"/></svg>';
+
+    stage.style.setProperty('--web', svgURL(webSVG(170)));
+    stage.style.setProperty('--spider', svgURL(SPIDER));
+    stage.style.setProperty('--curl', svgURL(CURL));
+
+    /* Sinterklaas: pakjes in de voet, links rood met goud, rechts goud met rood */
+    const giftSVG = (box, lid, ribbon) => '<svg viewBox="-32 -34 64 64" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">'
+        + `<rect x="-24" y="-8" width="48" height="36" rx="3" fill="${box}"/>`
+        + `<rect x="-27" y="-17" width="54" height="11" rx="3" fill="${lid}"/>`
+        + `<rect x="-5" y="-17" width="10" height="45" fill="${ribbon}"/>`
+        + `<path d="M0,-17 C-6,-30 -22,-31 -20,-22 C-18,-16 -8,-17 0,-17 Z M0,-17 C6,-30 22,-31 20,-22 C18,-16 8,-17 0,-17 Z" fill="none" stroke="${ribbon}" stroke-width="4"/></svg>`;
+    const GIFT_RED = giftSVG('#b51e2b', '#d02f3c', '#f2b636'), GIFT_GOLD = giftSVG('#e0a530', '#f2b94a', '#b51e2b');
+    const gifts = document.querySelectorAll('.foot .gift');
+    if (gifts.length === 2) { gifts[0].innerHTML = GIFT_RED; gifts[1].innerHTML = GIFT_GOLD; }
+
+    /* en stapeltjes pakjes op de grondlijn in de lucht: [midden x, breedte onderste pakje, bovenste rood?] */
+    (function buildGiftPiles() {
+        const PILES = [[388, 58, 0], [1106, 46, 1], [1384, 62, 1], [2104, 48, 0]];
+        document.getElementById('giftPiles').innerHTML = PILES.map(([x, w, redTop]) => {
+            const t = w * 0.62;
+            return `<div class="gp" style="left:${x - w / 2}px;top:${380 - 1 - w}px;width:${w}px;height:${w}px">${redTop ? GIFT_GOLD : GIFT_RED}</div>`
+                + `<div class="gp" style="left:${x - t / 2 + w * 0.08}px;top:${380 - 1 - w - t * 0.82}px;width:${t}px;height:${t}px;transform:rotate(${redTop ? 8 : -8}deg)">${redTop ? GIFT_RED : GIFT_GOLD}</div>`;
+        }).join('');
+    })();
 
     /* ── Stage schalen naar het scherm ─────────────────────────────
        ?rotate=auto (standaard): staand beeldvlak → rechtop; liggend beeldvlak → stage 90° gedraaid,
@@ -782,17 +1361,73 @@ const CHECK_MINUTES = 1;
         [ 65, '#2c6fb5', '#7db3dd', '#b6daef', '#3c4e5a', '#27353e'],
     ];
 
-    function skyColours(alt) {
-        if (alt <= SKY[0][0]) return SKY[0].slice(1);
-        if (alt >= SKY[SKY.length - 1][0]) return SKY[SKY.length - 1].slice(1);
-        for (let i = 0; i < SKY.length - 1; i++) {
-            const a = SKY[i], b = SKY[i + 1];
+    /* Een thema mag een eigen luchttabel hebben (zelfde opbouw als SKY). Zonder eigen tabel geldt SKY. */
+    const SKY_THEMES = {
+        /* Halloween: paars-violette nacht met een gloeiende horizon, felle oranje schemering
+           en overdag een bleke, wat onheilspellende herfstlucht. Het bord blijft aubergine. */
+        halloween: [
+            [-18, '#0b0518', '#1c0c34', '#3a1650', '#130c1c', '#07050c'],
+            [-12, '#110726', '#25103e', '#4a1c58', '#170f22', '#0a0710'],
+            [ -7, '#1c0b38', '#3a1652', '#77284e', '#1c1428', '#0e0a15'],
+            [ -3, '#2a1350', '#5c2268', '#c8442c', '#22182f', '#120e1b'],
+            [  0, '#38205e', '#7c386a', '#f26a1e', '#2a1f38', '#171222'],
+            [  4, '#472f6c', '#9a5876', '#f59a48', '#312640', '#1c1728'],
+            [ 10, '#4a4680', '#8a78a0', '#e6b47c', '#352a45', '#1f192c'],
+            [ 22, '#484f88', '#8a8cb2', '#d2bca8', '#382d48', '#211a2e'],
+            [ 65, '#46508a', '#8890b8', '#c8b8b8', '#3a2f4a', '#231c30'],
+        ],
+        /* Sinterklaas: diepblauwe winternacht met een warme gloed boven het dorp, een lange
+           roze-oranje schemering en overdag een grijsblauwe novemberlucht. Bord wijnrood. */
+        sinterklaas: [
+            [-18, '#050a1c', '#0b1430', '#24203e', '#1a0b10', '#0b0507'],
+            [-12, '#09122e', '#16204a', '#3c2a4e', '#1e0d13', '#0e0609'],
+            [ -7, '#122050', '#2c3470', '#6c3a56', '#26111a', '#12080c'],
+            [ -3, '#1e3470', '#544f8c', '#c45e46', '#2f1720', '#170b10'],
+            [  0, '#2c4a8c', '#7a6898', '#ee8a48', '#391d26', '#1d0e13'],
+            [  4, '#3c66a2', '#8e9cc0', '#f2be7a', '#42222b', '#241217'],
+            [ 10, '#44709e', '#94aec6', '#dcd2bc', '#47262f', '#28151a'],
+            [ 22, '#4876a4', '#9ab4ca', '#c8d4dc', '#4a2930', '#2a171c'],
+            [ 65, '#4a78a8', '#9cb8ce', '#c6d4de', '#4b2a31', '#2b181d'],
+        ],
+    };
+
+    function skyColours(alt, table) {
+        const T = table || SKY;
+        if (alt <= T[0][0]) return T[0].slice(1);
+        if (alt >= T[T.length - 1][0]) return T[T.length - 1].slice(1);
+        for (let i = 0; i < T.length - 1; i++) {
+            const a = T[i], b = T[i + 1];
             if (alt >= a[0] && alt <= b[0]) {
                 const f = (alt - a[0]) / (b[0] - a[0]);
                 return a.slice(1).map((c, j) => mix(c, b[j + 1], f));
             }
         }
-        return SKY[SKY.length - 1].slice(1);
+        return T[T.length - 1].slice(1);
+    }
+
+    /* ── Thema op datum (THEMES bovenin), of vast met ?theme=<id> / ?theme=none ── */
+    const themeParam = (params.get('theme') || '').toLowerCase();
+    const dayNum = s => { const [d, m] = s.split('-').map(Number); return m * 100 + d; };   /* '06-12' → 1206 */
+
+    function themeFor(date) {
+        if (themeParam === 'none') return null;
+        if (themeParam && THEMES.some(th => th.id === themeParam)) return themeParam;
+        const md = (date.getMonth() + 1) * 100 + date.getDate();
+        for (const th of THEMES) {
+            const from = dayNum(th.van), to = dayNum(th.tot);
+            const inside = from <= to ? (md >= from && md < to) : (md >= from || md < to);   /* over de jaargrens */
+            if (inside) return th.id;
+        }
+        return null;
+    }
+
+    let theme = null;
+    function applyTheme(id) {
+        if (id === theme) return;
+        if (theme) stage.classList.remove('theme-' + theme);
+        if (id) stage.classList.add('theme-' + id);
+        theme = id;
+        lastSkyMinute = -1;                 /* lucht meteen in de kleuren van het nieuwe thema */
     }
 
     function sunColour(alt) {
@@ -817,6 +1452,104 @@ const CHECK_MINUTES = 1;
         starsEl.innerHTML = s;
     })();
 
+    /* ── Halloween-decor in de lucht (verborgen buiten het thema) ── */
+    /* Kale, kronkelige bomen (vaste seed, dus elke keer dezelfde) */
+    (function buildTrees() {
+        let a = 31102026;
+        const rnd = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+        const WIDTH = [10, 6.5, 4.2, 2.6, 1.6];
+        const paths = WIDTH.map(() => '');
+        function branch(x1, y1, len, ang, depth) {
+            const x2 = x1 + Math.sin(ang) * len, y2 = y1 - Math.cos(ang) * len;
+            const bend = (rnd() - 0.5) * len * 0.35;
+            const cx = (x1 + x2) / 2 + Math.cos(ang) * bend, cy = (y1 + y2) / 2 + Math.sin(ang) * bend;
+            paths[depth] += `M${x1.toFixed(1)},${y1.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)} `;
+            if (depth === WIDTH.length - 1) return;
+            const n = depth === 0 ? 3 : 2;
+            for (let i = 0; i < n; i++) {
+                const spread = n === 3 ? (i - 1) * 0.62 : (i ? 1 : -1) * (0.32 + rnd() * 0.38);
+                branch(x2, y2, len * (0.6 + rnd() * 0.14), ang + spread + (rnd() - 0.5) * 0.3, depth + 1);
+            }
+        }
+        /* [voet x, hoogte] — op de plekken van de bolle bomen */
+        const TREES = [[170, 100], [241, 128], [320, 104], [1130, 104], [1192, 132], [1262, 112], [1322, 88]];
+        TREES.forEach(([x, h]) => branch(x, 300, h * 0.36, (rnd() - 0.5) * 0.14, 0));
+        /* één pad per tak-niveau, met aflopende lijndikte */
+        document.getElementById('trees').innerHTML = paths.map((d, i) =>
+            `<path d="${d}" stroke-width="${WIDTH[i]}"/>`).join('');
+    })();
+
+    /* Vleermuizen: [hoogte, breedte, vliegduur s, vertraging s, deinduur s, omgekeerd?] */
+    (function buildBats() {
+        const BATS = [
+            [ 96, 64, 24,  -3, 2.8, 0], [168, 46, 31, -17, 3.4, 1], [215, 58, 27, -11, 2.2, 0],
+            [128, 40, 38, -26, 3.9, 1], [ 56, 50, 34,  -6, 3.1, 1], [190, 72, 22, -15, 2.6, 0],
+            [240, 44, 29, -21, 3.6, 1],
+        ];
+        const shape = '<path d="M46,20 C38,14 22,8 4,6 C10,12 12,18 10,24 C16,20 22,22 24,28 C28,23 34,24 37,30 C40,26 44,27 46,30 Z"/>'
+            + '<path d="M54,20 C62,14 78,8 96,6 C90,12 88,18 90,24 C84,20 78,22 76,28 C72,23 66,24 63,30 C60,26 56,27 54,30 Z"/>'
+            + '<ellipse cx="50" cy="24" rx="5.5" ry="10"/><circle cx="50" cy="13" r="5"/>'
+            + '<path d="M45.5,12 L46,4 L49,10 Z M54.5,12 L54,4 L51,10 Z"/>';
+        document.getElementById('bats').innerHTML = BATS.map(([y, w, dur, delay, bob, rev], i) =>
+            `<div class="bat" style="top:${y}px;animation-duration:${dur}s;animation-delay:${delay}s${rev ? ';animation-direction:reverse' : ''}">`
+            + `<div class="bob" style="animation-duration:${bob}s;animation-delay:${(-i * 0.7).toFixed(1)}s">`
+            + `<svg viewBox="0 0 100 50" width="${w}" height="${w / 2}" style="animation-delay:${(-i * 0.13).toFixed(2)}s">${shape}</svg>`
+            + '</div></div>').join('');
+    })();
+
+    /* Pompoen met uitgesneden gezicht (ook in de voet) */
+    const PUMPKIN = '<svg viewBox="-32 -30 64 58" xmlns="http://www.w3.org/2000/svg">'
+        + '<path d="M-3,-15 C-3,-21 -1,-25 4,-28 L7,-25 C3,-22 3,-19 3,-15 Z" fill="#5d6b2c"/>'
+        + '<ellipse cx="-12" cy="6" rx="15" ry="19" fill="#c4501a"/><ellipse cx="12" cy="6" rx="15" ry="19" fill="#c4501a"/>'
+        + '<ellipse cx="-5" cy="5" rx="13" ry="21" fill="#e0661c"/><ellipse cx="5" cy="5" rx="13" ry="21" fill="#e0661c"/>'
+        + '<ellipse cx="0" cy="5" rx="8" ry="22" fill="#ee7a26"/>'
+        + '<g fill="#ffd54a"><path d="M-14,-1 L-5,-1 L-9.5,-9 Z M5,-1 L14,-1 L9.5,-9 Z M-2.5,6 L2.5,6 L0,1.5 Z"/>'
+        + '<path d="M-15,9 Q0,24 15,9 Q11,12 8,11.5 L6,15 L3,12.5 L-3,12.5 L-6,15 L-8,11.5 Q-11,12 -15,9 Z"/></g></svg>';
+    const pumpkinHTML = '<div class="glow"><div></div></div>' + PUMPKIN;
+
+    (function buildPumpkins() {
+        /* [midden x, breedte] — staan op de grondlijn van het silhouet */
+        const PUMPKINS = [[390, 80], [1108, 62], [1385, 88], [1800, 70]];
+        document.getElementById('pumpkins').innerHTML = PUMPKINS.map(([x, w], i) => {
+            const h = w * 58 / 64;
+            return `<div class="pk" style="left:${x - w / 2}px;top:${SKY_H - 1 - h}px;width:${w}px;height:${h}px">`
+                + pumpkinHTML.replace('<div></div>', `<div style="animation-delay:${(-i * 0.9).toFixed(1)}s"></div>`) + '</div>';
+        }).join('');
+        document.querySelectorAll('.foot .pk').forEach(el => { el.innerHTML = pumpkinHTML; });
+    })();
+
+    /* Dansende skeletten op het kerkhof. Tekening rond het bekken (0,0); de rechterarm en het
+       rechterbeen zijn gespiegelde kopieën van links (.alt = een halve maat later). */
+    (function buildSkeletons() {
+        /* [midden x, dans, gespiegeld?, vertraging bij opstaan/wegzakken s] */
+        const SKELETONS = [[1188, 'kick', 0, 0.6], [1256, 'wave', 0, 0], [1324, 'kick', 1, 1.3]];
+        const S = 0.9, VW = 108, VH = 130;     /* viewBox -54 -90 108 130, voeten op y ≈ 39 */
+        const BONE = '#ece2cc', HOLE = '#140b1e';
+        const leg = alt => `<g class="thigh${alt}"><path d="M0,0 L0,19" stroke-width="4.4"/>`
+            + `<g transform="translate(0,19)"><g class="shin${alt}"><path d="M0,0 L0,18 L-5,19" stroke-width="4"/></g></g></g>`;
+        const arm = alt => `<g class="arm${alt}"><path d="M0,0 L0,15" stroke-width="4"/>`
+            + `<g transform="translate(0,15)"><g class="fore${alt}"><path d="M0,0 L0,12" stroke-width="3.6"/>`
+            + '<circle cy="14.5" r="3.1" stroke="none"/></g></g></g>';
+        const body = `<g class="hop" fill="${BONE}" stroke="${BONE}" stroke-linecap="round" stroke-linejoin="round">`
+            + `<g transform="translate(-5,-1)">${leg('')}</g><g transform="translate(5,-1) scale(-1,1)">${leg(' alt')}</g>`
+            + '<path d="M-9,-6 Q0,-10 9,-6 L7,2 Q0,-1 -7,2 Z" stroke-width="1.5"/>'
+            + '<g class="torso"><g fill="none">'
+            + '<path d="M0,-4 L0,-50" stroke-width="3.2"/>'
+            + '<path d="M-8,-41 Q0,-47 8,-41 M-9,-35.5 Q0,-41.5 9,-35.5 M-8.5,-30 Q0,-36 8.5,-30 M-7,-24.5 Q0,-30 7,-24.5" stroke-width="2.6"/>'
+            + '<path d="M-11,-46 Q0,-49 11,-46" stroke-width="3.4"/></g>'
+            + `<g transform="translate(-11,-46)">${arm('')}</g><g transform="translate(11,-46) scale(-1,1)">${arm(' alt')}</g>`
+            + '<g transform="translate(0,-50)"><g class="head" stroke="none">'
+            + '<path d="M-5.5,-5 L5.5,-5 L4.2,0 L-4.2,0 Z"/><ellipse cy="-11" rx="9" ry="9.5"/>'
+            + `<g fill="${HOLE}"><circle cx="-3.6" cy="-11" r="2.7"/><circle cx="3.6" cy="-11" r="2.7"/><path d="M0,-7.6 L-1.4,-5 L1.4,-5 Z"/></g>`
+            + '</g></g></g></g>';
+        document.getElementById('skeletons').innerHTML = SKELETONS.map(([x, dance, mirror, delay]) => {
+            const w = VW * S, h = VH * S;
+            return `<div class="sk ${dance}" style="left:${(x - w / 2).toFixed(1)}px;top:${(SKY_H - 2 - h).toFixed(1)}px">`
+                + `<svg viewBox="${-VW / 2} -90 ${VW} ${VH}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" style="transition-delay:${delay}s">`
+                + (mirror ? `<g transform="scale(-1,1)">${body}</g>` : body) + '</svg></div>';
+        }).join('');
+    })();
+
     function drawMoon(p) {
         const r = 44, t = Math.cos(2 * Math.PI * p), rx = Math.max(0.5, Math.abs(t) * r);
         const d = p < 0.5
@@ -836,6 +1569,7 @@ const CHECK_MINUTES = 1;
     function render() {
         const t = now();
         timeEl.textContent = fmtTime(t);
+        applyTheme(themeFor(t));            /* wisselt om middernacht vanzelf, ook bij ?t= en ?demo */
 
         const minute = Math.floor(t.getTime() / 60000);
         if (minute === lastSkyMinute && mode !== 'demo') return;
@@ -843,10 +1577,17 @@ const CHECK_MINUTES = 1;
 
         dateEl.textContent = fmtDate(t);
         const sun = sunPosition(t);
-        const [zen, mid, hor, gTop, gBot] = skyColours(sun.alt);
+        const [zen, mid, hor, gTop, gBot] = skyColours(sun.alt, SKY_THEMES[theme]);
         stage.style.setProperty('--ground-top', gTop);
         stage.style.setProperty('--ground-bottom', gBot);
         document.body.style.background = gBot;
+
+        /* Algemene haken voor thema's: --night (0 dag … 1 nacht), --glow (lampjes) en de klasse
+           after-sunset zodra de zon officieel onder is (−0,833°), tot zonsopgang. */
+        const night = clamp((-sun.alt + 1) / 8, 0, 1);
+        stage.style.setProperty('--night', night.toFixed(3));
+        stage.style.setProperty('--glow', (0.3 + 0.7 * night).toFixed(3));
+        stage.classList.toggle('after-sunset', sun.alt < -0.833);
 
         const sx = skyX(sun.az), sy = skyY(sun.alt);
         const sc = sunColour(sun.alt);
@@ -867,9 +1608,17 @@ const CHECK_MINUTES = 1;
 
         const moon = moonPosition(t);
         const mx = skyX(moon.az), my = skyY(moon.alt);
-        moonEl.style.transform = `translate(${(mx - 35).toFixed(1)}px, ${(my - 35).toFixed(1)}px)`;
-        moonEl.style.opacity = (clamp((-sun.alt + 1) / 9, 0, 1) * clamp((moon.alt + 2) / 4, 0, 1)).toFixed(3);
+        const mr = (moonEl.offsetWidth || 70) / 2;   /* een thema mag de maan groter maken */
+        moonEl.style.transform = `translate(${(mx - mr).toFixed(1)}px, ${(my - mr).toFixed(1)}px)`;
+        const moonVis = clamp((-sun.alt + 1) / 9, 0, 1) * clamp((moon.alt + 2) / 4, 0, 1);
+        moonEl.style.opacity = moonVis.toFixed(3);
         drawMoon(moonPhase(t));
+
+        /* Halloween: de heks vliegt langs de maan als die op is, anders op vaste hoogte boven het dorp */
+        if (theme === 'halloween') {
+            const laneY = moonVis > 0.3 && moon.alt > 3 ? clamp(my - 88, 10, 190) : 60;
+            witchLane.style.transform = `translateY(${laneY.toFixed(0)}px)`;
+        }
     }
 
     render();
