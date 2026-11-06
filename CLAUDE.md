@@ -29,7 +29,7 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 | `?rotate=auto` (standaard) | Staand beeldvlak → rechtop; liggend beeldvlak → 90° gedraaid zodat het scherm vult (op Windows/Mac blijft de pagina rechtop) |
 | `?rotate=0` / `90` / `180` / `270` | Vaste draaiing, bijv. `270` als het beeld ondersteboven staat |
 | `?debug` | Toont viewport, schaal en user-agent op het scherm, handig bij het instellen van het display |
-| `?theme=halloween` / `sinterklaas` / `none` | Vast thema, of `none` voor het gewone bord, los van de datum (combineer met `?t=` voor dag of nacht) |
+| `?theme=halloween` / `sinterklaas` / `kerst` / `oudennieuw` / `none` | Vast thema, of `none` voor het gewone bord, los van de datum (combineer met `?t=` voor dag of nacht) |
 
 Het thema volgt verder vanzelf de datum uit `?t=` of `?demo`, dus `?t=2026-10-20T21:00` toont Halloween bij nacht.
 
@@ -54,17 +54,21 @@ Het thema volgt verder vanzelf de datum uit `?t=` of `?demo`, dus `?t=2026-10-20
 Er is één `index.html` op `main` en dus één `MENU` als prijsbron: thema's zijn geen aparte branches meer. Ze gaan vanzelf aan en uit.
 
 - **Periodetabel**: `THEMES` bovenin `<script>`, vlak na `EVENT`. Per thema `{ id, van, tot }` als `'dd-mm'`, lokale tijd. `van` is de eerste dag mét thema, `tot` de eerste dag zónder (exclusief). Een periode mag over de jaargrens lopen (`oudennieuw`: 27-12 tot 02-01). Bij overlap wint de bovenste regel.
-  - `halloween` 01-10 tot 01-11, `sinterklaas` 01-11 tot 06-12: gebouwd
-  - `kerst` 06-12 tot 27-12, `oudennieuw` 27-12 tot 02-01: staan in de tabel, maar hebben nog geen versiering (dan ziet het bord er gewoon uit)
+  - `halloween` 01-10 tot 01-11, `sinterklaas` 01-11 tot 06-12, `kerst` 06-12 tot 27-12, `oudennieuw` 27-12 tot 02-01
 - **Werking**: `render()` bepaalt elke seconde via `themeFor(now())` het thema en zet bij een wissel de klasse `theme-<id>` op `#stage`. Zo wisselt het om middernacht vanzelf (het scherm herlaadt alleen als `index.html` verandert) en werken `?t=`, `?demo` en `?theme=` mee.
 - **Zichtbaarheid**: elementen die bij één thema horen krijgen de klasse `t-<id>` en staan zonder dat thema op `display: none`, dus ze tekenen niet en hun animaties draaien niet (prestaties op de signage-SoC/Pi). Gewone elementen pas je aan met CSS onder `.theme-<id>` (bijv. `--accent`, `--accent-rgb`, kaartkleuren, titel).
 - **Lucht en bord**: een thema kan een eigen luchttabel hebben in `SKY_THEMES[<id>]` (zelfde opbouw als `SKY`, inclusief de bordkleuren). JS zet `--ground-top`/`--ground-bottom` daaruit, dus nooit hardcoden.
 - **Algemene haken** (door `render()` gezet op `#stage`):
   - klasse `after-sunset` zodra de zon officieel onder is (−0,833°) tot zonsopgang; bijv. de skeletten van Halloween en de Sint op zijn schimmel
   - `--night` (0 overdag … 1 's nachts) en `--glow` (0,3 … 1) voor verlichte ramen en kaarsjes
-  - `.land .lit`: ramen in het silhouet die 's avonds oplichten (aan bij Halloween en Sinterklaas)
+  - `.land .lit`: ramen in het silhouet die 's avonds oplichten (aan bij alle vier de thema's)
+  - `.no-kerst`: de bolle boom naast de kerk, die met kerst plaatsmaakt voor de kerstboom
 - **Halloween**: oranje accent, paarse lucht, Creepster-titel, kale bomen en kerkhof bij de Sebastiaankerk, vleermuizen, heks langs de maan, grondmist, pompoenen (ook in de voet), spinnenwebben en spin op de kaarten, en na zonsondergang dansende skeletten.
 - **Sinterklaas**: goud accent, wijnrood bord, blauwe winterlucht, stoomboot die achter de dijk aanmeert (met rook, vlaggetjes en 's avonds verlichte patrijspoorten), pakjes op de grondlijn en in de voet, mijter in de titelband, gouden staf-krul op de bovenste kaarten, en na zonsondergang de Sint op zijn schimmel die over de daken rijdt en pepernoten strooit.
+- **Kerst**: kaarsgoud accent, donker dennengroen bord met hulstrode kaartranden, heldere winterlucht met lichte sneeuwval (twee getegelde lagen, vier bewegende elementen), sneeuw op daken, dijk, wierde en boomkruinen, fonkelende lichtjes in de bomen, een verlichte kerstboom naast de Sebastiaankerk, een ster boven de toren, hulst in de titelband, een dennentak op de bovenste kaarten met een schommelende kerstbal aan de Patat-kaart, kerstboompjes in de voet, en na zonsondergang de arreslee met rendieren langs de maan.
+- **Oud en nieuw**: champagne-accent, middernachtsblauw bord, serpentines op de bovenste kaarten, klinkende glazen in de titelband, oliebollen en een glas champagne (met bubbels) in de voet. Overdag carbidschieten: melkbussen op het erf en op de dijk, met steekvlam en rookwolk. Na zonsondergang vuurwerk achter het silhouet (4 pijlen). Daarvoor zet JS op `#stage`:
+  - `nye` op 31 december na zonsondergang en in de nacht naar 1 januari (tot 12:00): 6 extra pijlen (`.fw.extra`)
+  - `new-year` op 1 januari: "Gelukkig nieuwjaar!" met "Gelukkig nijjoar · <jaar>" linksboven in de lucht
 
 **Een thema toevoegen** (bijv. `kerst`):
 1. Regel staat al in `THEMES` (anders toevoegen, met `van`/`tot`)
@@ -73,6 +77,8 @@ Er is één `index.html` op `main` en dus één `MENU` als prijsbron: thema's zi
 4. Eventueel `SKY_THEMES.kerst` voor eigen lucht- en bordkleuren, en JS-opbouw van versiering (zoals `buildPumpkins`) die alleen klaarzet; de CSS bepaalt de zichtbaarheid
 5. Animaties en `prefers-reduced-motion` toevoegen aan het `@media`-blok; houd het licht (alleen `transform`/`opacity`, geen blur)
 6. Testen met `?theme=kerst&t=…T12:00` en `T21:00`, en de grensdagen met `?t=`
+
+Let op: een CSS-animatie op een element binnen een verborgen SVG-groep (`<g class="t-…">` in het silhouet) blijft in Chrome doortikken. Hang zulke animaties daarom aan `.theme-<id>` (zoals `.theme-kerst .land .xl g`).
 
 ## Menu aanpassen
 
