@@ -29,7 +29,7 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 | `?rotate=auto` (standaard) | Staand beeldvlak → rechtop; liggend beeldvlak → 90° gedraaid zodat het scherm vult (op Windows/Mac blijft de pagina rechtop) |
 | `?rotate=0` / `90` / `180` / `270` | Vaste draaiing, bijv. `270` als het beeld ondersteboven staat |
 | `?debug` | Toont viewport, schaal en user-agent op het scherm, handig bij het instellen van het display |
-| `?theme=halloween` / `sinterklaas` / `kerst` / `oudennieuw` / `none` | Vast thema, of `none` voor het gewone bord, los van de datum (combineer met `?t=` voor dag of nacht) |
+| `?theme=halloween` / `sinterklaas` / `kerst` / `oudennieuw` / `nieuwjaar` / `none` | Vast thema, of `none` voor het gewone bord, los van de datum (combineer met `?t=` voor dag of nacht) |
 
 Het thema volgt verder vanzelf de datum uit `?t=` of `?demo`, dus `?t=2026-10-20T21:00` toont Halloween bij nacht.
 
@@ -54,7 +54,7 @@ Het thema volgt verder vanzelf de datum uit `?t=` of `?demo`, dus `?t=2026-10-20
 Er is één `index.html` op `main` en dus één `MENU` als prijsbron: thema's zijn geen aparte branches meer. Ze gaan vanzelf aan en uit.
 
 - **Periodetabel**: `THEMES` bovenin `<script>`, vlak na `EVENT`. Per thema `{ id, van, tot }` als `'dd-mm'`, lokale tijd. `van` is de eerste dag mét thema, `tot` de eerste dag zónder (exclusief). Een periode mag over de jaargrens lopen (`oudennieuw`: 27-12 tot 02-01). Bij overlap wint de bovenste regel.
-  - `halloween` 01-10 tot 01-11, `sinterklaas` 01-11 tot 06-12, `kerst` 06-12 tot 27-12, `oudennieuw` 27-12 tot 02-01
+  - `halloween` 01-10 tot 01-11, `sinterklaas` 01-11 tot 06-12, `kerst` 06-12 tot 27-12, `oudennieuw` 27-12 tot 02-01, `nieuwjaar` 02-01 tot 15-01 (alleen de groet)
 - **Werking**: `render()` bepaalt elke seconde via `themeFor(now())` het thema en zet bij een wissel de klasse `theme-<id>` op `#stage`. Zo wisselt het om middernacht vanzelf (het scherm herlaadt alleen als `index.html` verandert) en werken `?t=`, `?demo` en `?theme=` mee.
 - **Zichtbaarheid**: elementen die bij één thema horen krijgen de klasse `t-<id>` en staan zonder dat thema op `display: none`, dus ze tekenen niet en hun animaties draaien niet (prestaties op de signage-SoC/Pi). Gewone elementen pas je aan met CSS onder `.theme-<id>` (bijv. `--accent`, `--accent-rgb`, kaartkleuren, titel).
 - **Lucht en bord**: een thema kan een eigen luchttabel hebben in `SKY_THEMES[<id>]` (zelfde opbouw als `SKY`, inclusief de bordkleuren). JS zet `--ground-top`/`--ground-bottom` daaruit, dus nooit hardcoden.
@@ -69,7 +69,8 @@ Er is één `index.html` op `main` en dus één `MENU` als prijsbron: thema's zi
   - De lampjes zijn dekkende, verzadigde kernen (goud, rood, wit, blauw; in de kerstbomen met een donkere rand), zodat ze ook overdag tegen de lichte lucht en de sneeuw te zien zijn. 's Avonds krijgen ze een halo (radiale gradiënt per kleur, opacity `--night`) en zakt het groen van de kerstbomen weg in het silhouet (`.kdim`). Alle lampjes zitten in drie groepen `.xl > .a/.b/.c`, dus drie fonkelanimaties; overdag fonkelen ze nauwelijks.
 - **Oud en nieuw**: champagne-accent, middernachtsblauw bord, serpentines op de bovenste kaarten, klinkende glazen in de titelband, oliebollen en een glas champagne (met bubbels) in de voet. Overdag carbidschieten: melkbussen op het erf en op de dijk, met steekvlam en rookwolk. Na zonsondergang vuurwerk achter het silhouet (4 pijlen). Daarvoor zet JS op `#stage`:
   - `nye` op 31 december na zonsondergang en in de nacht naar 1 januari (tot 12:00): 6 extra pijlen (`.fw.extra`)
-  - `new-year` op 1 januari: "Gelukkig nieuwjaar!" met "Gelukkig nijjoar · <jaar>" linksboven in de lucht
+  - `new-year` op 1 januari: "Gelukkig nieuwjaar!" linksboven in de lucht
+- **Nieuwjaar** (2 t/m 14 januari): het gewone bord (eigen lucht, bord en accent van `SKY`/`:root`, geen versiering), alleen met de nieuwjaarsgroet linksboven in de lucht. JS zet `new-year` ook bij dit thema; het element `.nieuwjaar` heeft geen `t-`-klasse maar staat via `#stage:not(.new-year) .nieuwjaar` uit. Hoe lang de groet blijft staan pas je aan met `tot` van de regel `nieuwjaar` in `THEMES` (nu `15-01`, de eerste dag zónder groet).
 
 **Een thema toevoegen** (bijv. `kerst`):
 1. Regel staat al in `THEMES` (anders toevoegen, met `van`/`tot`)

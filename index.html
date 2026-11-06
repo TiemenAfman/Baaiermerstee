@@ -865,7 +865,8 @@
            klinkende glazen in de titelband, oliebollen en champagne in de voet. Overdag
            carbidschieten met melkbussen op het erf (Gronings), na zonsondergang vuurwerk.
            JS zet .nye op oudejaarsavond en in de nacht naar 1 januari (meer vuurwerk) en
-           .new-year op nieuwjaarsdag ("Gelukkig nieuwjaar" in de lucht). */
+           .new-year op nieuwjaarsdag ("Gelukkig nieuwjaar" in de lucht). Van 2 t/m 14 januari
+           staat die groet er nog boven het gewone bord: het thema nieuwjaar in THEMES. */
         #stage.theme-oudennieuw {
             --accent: #f3d27e;                 /* champagne */
             --accent-rgb: 243, 210, 126;
@@ -965,7 +966,8 @@
             100% { opacity: 0; transform: translate(80px, -56px) scale(2.6); }
         }
 
-        /* "Gelukkig nieuwjaar" op nieuwjaarsdag, linksboven in de lucht (tegenover de klok) */
+        /* "Gelukkig nieuwjaar" linksboven in de lucht (tegenover de klok): op nieuwjaarsdag binnen
+           oud en nieuw, en daarna in het thema nieuwjaar (THEMES) boven het gewone bord */
         #stage:not(.new-year) .nieuwjaar { display: none; }
         .nieuwjaar {
             position: absolute;
@@ -978,12 +980,6 @@
             font-size: 66px;                   /* blijft links van de kerktoren */
             line-height: 1;
             color: var(--accent);
-        }
-        .nieuwjaar .small {
-            font-size: 34px;
-            line-height: 1.2;
-            margin-top: 12px;
-            color: rgba(246, 240, 230, 0.92);
         }
 
         /* Bubbels in het champagneglas in de voet */
@@ -1288,11 +1284,11 @@
             <div class="sway near"><div class="fall"></div></div>
         </div>
 
-        <!-- Oud en nieuw: melkbussen voor het carbidschieten (JS) en op nieuwjaarsdag een groet linksboven -->
+        <!-- Oud en nieuw: melkbussen voor het carbidschieten (JS). De groet linksboven staat er
+             op nieuwjaarsdag en in het thema nieuwjaar erna (zichtbaar via .new-year, zie render()) -->
         <div id="carbide" class="t-oudennieuw"></div>
-        <div class="nieuwjaar t-oudennieuw">
+        <div class="nieuwjaar">
             <div class="big">Gelukkig nieuwjaar!</div>
-            <div class="small">Gelukkig nijjoar · <span id="nyYear"></span></div>
         </div>
 
         <div class="clock">
@@ -1429,13 +1425,14 @@ const EVENT = {
    THEMA'S — gaan vanzelf aan op datum (lokale tijd), elke minuut opnieuw bepaald.
    'van' = eerste dag mét thema, 'tot' = eerste dag zónder (dus exclusief), als 'dd-mm'.
    Een periode mag over de jaargrens lopen (27-12 tot 02-01). Bij overlap wint de bovenste.
-   Testen: ?theme=halloween|sinterklaas|kerst|oudennieuw|none, of een datum met ?t=2026-10-20T21:00.
+   Testen: ?theme=halloween|sinterklaas|kerst|oudennieuw|nieuwjaar|none, of een datum met ?t=2026-10-20T21:00.
    ═══════════════════════════════════════════════════════════════ */
 const THEMES = [
     { id: 'halloween',   van: '01-10', tot: '01-11' },   // heel oktober
     { id: 'sinterklaas', van: '01-11', tot: '06-12' },
     { id: 'kerst',       van: '06-12', tot: '27-12' },
-    { id: 'oudennieuw',  van: '27-12', tot: '02-01' },   // over de jaargrens
+    { id: 'oudennieuw',  van: '27-12', tot: '02-01' },   // over de jaargrens; op 1 januari met nieuwjaarsgroet
+    { id: 'nieuwjaar',   van: '02-01', tot: '15-01' },   // gewoon bord, alleen de nieuwjaarsgroet in de lucht
 ];
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1462,7 +1459,6 @@ const CHECK_MINUTES = 1;
     const dateEl = document.getElementById('date');
     const witchLane = document.getElementById('witchLane');
     const sleighLane = document.getElementById('sleighLane');
-    const nyYear = document.getElementById('nyYear');
 
     /* ── Menu opbouwen ─────────────────────────────────────────── */
     function esc(s) {
@@ -2271,12 +2267,11 @@ const CHECK_MINUTES = 1;
         stage.classList.toggle('after-sunset', afterSunset);
 
         /* Oud en nieuw: .nye op oudejaarsavond en in de nacht naar 1 januari (uitbundiger vuurwerk),
-           .new-year op nieuwjaarsdag ("Gelukkig nieuwjaar" in de lucht) */
+           .new-year op nieuwjaarsdag en in het thema nieuwjaar erna ("Gelukkig nieuwjaar" in de lucht) */
         const month = t.getMonth(), day = t.getDate();
         stage.classList.toggle('nye', theme === 'oudennieuw' && afterSunset
             && ((month === 11 && day === 31) || (month === 0 && day === 1 && t.getHours() < 12)));
-        stage.classList.toggle('new-year', theme === 'oudennieuw' && month === 0);
-        nyYear.textContent = t.getFullYear();
+        stage.classList.toggle('new-year', (theme === 'oudennieuw' && month === 0) || theme === 'nieuwjaar');
 
         const sx = skyX(sun.az), sy = skyY(sun.alt);
         const sc = sunColour(sun.alt);
