@@ -974,12 +974,6 @@
             line-height: 1;
             color: var(--accent);
         }
-        .nieuwjaar .small {
-            font-size: 34px;
-            line-height: 1.2;
-            margin-top: 12px;
-            color: rgba(246, 240, 230, 0.92);
-        }
 
         /* Bubbels in het champagneglas in de voet */
         .foot .bub { animation: bubble 2.6s linear infinite; opacity: 0; }
@@ -1289,7 +1283,6 @@
         <div id="carbide" class="t-oudennieuw"></div>
         <div class="nieuwjaar">
             <div class="big">Gelukkig nieuwjaar!</div>
-            <div class="small">Gelukkig nijjoar · <span id="nyYear"></span></div>
         </div>
 
         <div class="clock">
@@ -1460,7 +1453,6 @@ const CHECK_MINUTES = 1;
     const dateEl = document.getElementById('date');
     const witchLane = document.getElementById('witchLane');
     const sleighLane = document.getElementById('sleighLane');
-    const nyYear = document.getElementById('nyYear');
 
     /* ── Menu opbouwen ─────────────────────────────────────────── */
     function esc(s) {
@@ -2224,7 +2216,6 @@ const CHECK_MINUTES = 1;
         stage.classList.toggle('nye', theme === 'oudennieuw' && afterSunset
             && ((month === 11 && day === 31) || (month === 0 && day === 1 && t.getHours() < 12)));
         stage.classList.toggle('new-year', (theme === 'oudennieuw' && month === 0) || theme === 'nieuwjaar');
-        nyYear.textContent = t.getFullYear();
 
         const sx = skyX(sun.az), sy = skyY(sun.alt);
         const sc = sunColour(sun.alt);

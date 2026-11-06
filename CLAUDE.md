@@ -68,7 +68,7 @@ Er is één `index.html` op `main` en dus één `MENU` als prijsbron: thema's zi
 - **Kerst**: kaarsgoud accent, donker dennengroen bord met hulstrode kaartranden, heldere winterlucht met lichte sneeuwval (twee getegelde lagen, vier bewegende elementen), sneeuw op daken, dijk, wierde en boomkruinen, fonkelende lichtjes in de bomen, een verlichte kerstboom naast de Sebastiaankerk, een ster boven de toren, hulst in de titelband, een dennentak op de bovenste kaarten met een schommelende kerstbal aan de Patat-kaart, kerstboompjes in de voet, en na zonsondergang de arreslee met rendieren langs de maan.
 - **Oud en nieuw**: champagne-accent, middernachtsblauw bord, serpentines op de bovenste kaarten, klinkende glazen in de titelband, oliebollen en een glas champagne (met bubbels) in de voet. Overdag carbidschieten: melkbussen op het erf en op de dijk, met steekvlam en rookwolk. Na zonsondergang vuurwerk achter het silhouet (4 pijlen). Daarvoor zet JS op `#stage`:
   - `nye` op 31 december na zonsondergang en in de nacht naar 1 januari (tot 12:00): 6 extra pijlen (`.fw.extra`)
-  - `new-year` op 1 januari: "Gelukkig nieuwjaar!" met "Gelukkig nijjoar · <jaar>" linksboven in de lucht
+  - `new-year` op 1 januari: "Gelukkig nieuwjaar!" linksboven in de lucht
 - **Nieuwjaar** (2 t/m 14 januari): het gewone bord (eigen lucht, bord en accent van `SKY`/`:root`, geen versiering), alleen met de nieuwjaarsgroet linksboven in de lucht. JS zet `new-year` ook bij dit thema; het element `.nieuwjaar` heeft geen `t-`-klasse maar staat via `#stage:not(.new-year) .nieuwjaar` uit. Hoe lang de groet blijft staan pas je aan met `tot` van de regel `nieuwjaar` in `THEMES` (nu `15-01`, de eerste dag zónder groet).
 
 **Een thema toevoegen** (bijv. `kerst`):
