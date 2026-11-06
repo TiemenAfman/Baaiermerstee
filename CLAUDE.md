@@ -17,7 +17,7 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 - Ontwerpresolutie: **2160 × 3840 px** (4K portrait), vaste `#stage` die met `transform: scale()` op elk scherm past en zichzelf 90° draait als het beeldvlak liggend is
 - Geen flex `gap` gebruiken (oudere Android-WebViews op signage-SoCs kennen dat niet); marges in plaats daarvan
 - Kiosk: `overflow: hidden`, `cursor: none`, `<meta name="google" content="notranslate">`
-- Geen frameworks of build-stappen. Enige externe bron: Google Fonts (Young Serif + Atkinson Hyperlegible) met systeem-fallbacks
+- Geen frameworks of build-stappen. Enige externe bron: Google Fonts (Young Serif + Atkinson Hyperlegible, plus Creepster voor de Halloween-titel; een font wordt pas opgehaald als het gebruikt wordt) met systeem-fallbacks
 - Lettergroottes zijn afgestemd op leesbaarheid vanaf ~3 meter — **niet verkleinen** (items 56 px, prijzen 58 px)
 
 ## URL-parameters (voor testen en installatie)
@@ -29,6 +29,9 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 | `?rotate=auto` (standaard) | Staand beeldvlak → rechtop; liggend beeldvlak → 90° gedraaid zodat het scherm vult (op Windows/Mac blijft de pagina rechtop) |
 | `?rotate=0` / `90` / `180` / `270` | Vaste draaiing, bijv. `270` als het beeld ondersteboven staat |
 | `?debug` | Toont viewport, schaal en user-agent op het scherm, handig bij het instellen van het display |
+| `?theme=halloween` / `sinterklaas` / `none` | Vast thema, of `none` voor het gewone bord, los van de datum (combineer met `?t=` voor dag of nacht) |
+
+Het thema volgt verder vanzelf de datum uit `?t=` of `?demo`, dus `?t=2026-10-20T21:00` toont Halloween bij nacht.
 
 ## Architectuur van index.html
 
@@ -44,6 +47,32 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
    - `fitRows()` verkleint te lange namen tot ze op één regel passen
    - `SNACK_VAN_DE_MAAND` = optionele kaart bovenin de linkerkolom, `EVENT` = de Noaberschap-kaart onderin de linkerkolom (`show: false` verbergt elk apart)
 4. **Voet** (`.foot`, 3660–3840 px): "Waar jong en oud elkaar ontmoeten!"
+5. **Thema's**: een seizoenslaag over het gewone bord, die op datum aangaat (zie hieronder)
+
+## Thema's (seizoensversiering op datum)
+
+Er is één `index.html` op `main` en dus één `MENU` als prijsbron: thema's zijn geen aparte branches meer. Ze gaan vanzelf aan en uit.
+
+- **Periodetabel**: `THEMES` bovenin `<script>`, vlak na `EVENT`. Per thema `{ id, van, tot }` als `'dd-mm'`, lokale tijd. `van` is de eerste dag mét thema, `tot` de eerste dag zónder (exclusief). Een periode mag over de jaargrens lopen (`oudennieuw`: 27-12 tot 02-01). Bij overlap wint de bovenste regel.
+  - `halloween` 01-10 tot 01-11, `sinterklaas` 01-11 tot 06-12: gebouwd
+  - `kerst` 06-12 tot 27-12, `oudennieuw` 27-12 tot 02-01: staan in de tabel, maar hebben nog geen versiering (dan ziet het bord er gewoon uit)
+- **Werking**: `render()` bepaalt elke seconde via `themeFor(now())` het thema en zet bij een wissel de klasse `theme-<id>` op `#stage`. Zo wisselt het om middernacht vanzelf (het scherm herlaadt alleen als `index.html` verandert) en werken `?t=`, `?demo` en `?theme=` mee.
+- **Zichtbaarheid**: elementen die bij één thema horen krijgen de klasse `t-<id>` en staan zonder dat thema op `display: none`, dus ze tekenen niet en hun animaties draaien niet (prestaties op de signage-SoC/Pi). Gewone elementen pas je aan met CSS onder `.theme-<id>` (bijv. `--accent`, `--accent-rgb`, kaartkleuren, titel).
+- **Lucht en bord**: een thema kan een eigen luchttabel hebben in `SKY_THEMES[<id>]` (zelfde opbouw als `SKY`, inclusief de bordkleuren). JS zet `--ground-top`/`--ground-bottom` daaruit, dus nooit hardcoden.
+- **Algemene haken** (door `render()` gezet op `#stage`):
+  - klasse `after-sunset` zodra de zon officieel onder is (−0,833°) tot zonsopgang; bijv. de skeletten van Halloween en de Sint op zijn schimmel
+  - `--night` (0 overdag … 1 's nachts) en `--glow` (0,3 … 1) voor verlichte ramen en kaarsjes
+  - `.land .lit`: ramen in het silhouet die 's avonds oplichten (aan bij Halloween en Sinterklaas)
+- **Halloween**: oranje accent, paarse lucht, Creepster-titel, kale bomen en kerkhof bij de Sebastiaankerk, vleermuizen, heks langs de maan, grondmist, pompoenen (ook in de voet), spinnenwebben en spin op de kaarten, en na zonsondergang dansende skeletten.
+- **Sinterklaas**: goud accent, wijnrood bord, blauwe winterlucht, stoomboot die achter de dijk aanmeert (met rook, vlaggetjes en 's avonds verlichte patrijspoorten), pakjes op de grondlijn en in de voet, mijter in de titelband, gouden staf-krul op de bovenste kaarten, en na zonsondergang de Sint op zijn schimmel die over de daken rijdt en pepernoten strooit.
+
+**Een thema toevoegen** (bijv. `kerst`):
+1. Regel staat al in `THEMES` (anders toevoegen, met `van`/`tot`)
+2. CSS onder `.theme-kerst` voor bestaande elementen, en eigen elementen in de HTML met klasse `t-kerst`
+3. Voeg in de CSS `#stage:not(.theme-kerst) .t-kerst` toe aan de regel met `display: none !important` bovenaan het themablok
+4. Eventueel `SKY_THEMES.kerst` voor eigen lucht- en bordkleuren, en JS-opbouw van versiering (zoals `buildPumpkins`) die alleen klaarzet; de CSS bepaalt de zichtbaarheid
+5. Animaties en `prefers-reduced-motion` toevoegen aan het `@media`-blok; houd het licht (alleen `transform`/`opacity`, geen blur)
+6. Testen met `?theme=kerst&t=…T12:00` en `T21:00`, en de grensdagen met `?t=`
 
 ## Menu aanpassen
 
@@ -51,7 +80,7 @@ Alles staat in het `MENU`-object bovenin `<script>`. Een item is `[naam, prijs]`
 
 ## Ontwerprichtlijnen
 
-- Accentkleur: geel `#f9a825` (prijzen, koppen, zon, kaartranden)
+- Accentkleur: geel `#f9a825` (prijzen, koppen, zon, kaartranden); in CSS altijd via `var(--accent)` of `rgba(var(--accent-rgb), …)`, zodat een thema hem kan vervangen
 - Tekst: warm gebroken wit `#f6f0e6`
 - De bordkleur (`--ground-top` / `--ground-bottom`) wordt door JS gezet en wordt donkerder naarmate het buiten donkerder is — niet hardcoden
 - Geen zware effecten (`backdrop-filter`, grote blur-filters): de speler is een signage-SoC of Raspberry Pi
