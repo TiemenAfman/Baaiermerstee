@@ -52,7 +52,7 @@ De regels voor het menu:
 Een poster, bijvoorbeeld met weekendaanbiedingen, kan een paar dagen met het menu afwisselen: het menu staat 30 seconden in beeld, de poster 10 seconden. Na de laatste dag is het om middernacht vanzelf weer alleen het menu.
 
 1. Maak de poster staand, het liefst in de verhouding van het scherm (bijv. 1080 × 1920 pixels of groter), als `.jpg` of `.png`.
-2. Ga op GitHub naar de map `img`, klik op "Add file" → "Upload files", sleep de afbeelding erin en klik op "Commit changes". Gebruik een korte bestandsnaam zonder spaties, bijv. `kerstborrel.jpg`.
+2. Ga op GitHub naar de map `img`, klik op "Add file" → "Upload files", sleep de afbeelding erin en klik op "Commit changes". Gebruik een korte bestandsnaam in kleine letters en zonder spaties, bijv. `kerstborrel.jpg`.
 3. Open daarna `index.html`, zoek met Ctrl+F naar `const POSTERS` en zet de naam en de data in de regel:
 
     ```
@@ -62,7 +62,13 @@ Een poster, bijvoorbeeld met weekendaanbiedingen, kan een paar dagen met het men
     `van` is de eerste dag mét poster en `tot` de eerste dag zónder, geschreven als jaar-maand-dag. Dit voorbeeld toont de poster op 19 en 20 december.
 4. Sla op met "Commit changes" en controleer het zoals hieronder. Vooraf bekijken kan met `?poster` achter de link (de poster wisselt dan altijd) of `?poster=vast` (de poster blijft staan).
 
-Upload de afbeelding vóórdat je `index.html` aanpast: het scherm herlaadt alleen als `index.html` verandert. Een oude regel mag blijven staan, want buiten de data doet hij niets; weghalen kan ook. Hoe lang menu en poster in beeld staan, pas je aan bij `MENU_SECONDEN` en `POSTER_SECONDEN`, direct onder de lijst.
+Let bij de afbeelding op drie dingen:
+
+- **Precies dezelfde naam.** De website maakt verschil tussen hoofdletters en kleine letters (Windows niet). `Kerstborrel.JPG` op GitHub en `img/kerstborrel.jpg` in `POSTERS` werkt dus niet. Houd alles in kleine letters.
+- **Geen schuine streep vooraan.** Schrijf `img/kerstborrel.jpg`, niet `/img/kerstborrel.jpg`, anders vindt de website het bestand niet.
+- **Altijd een nieuwe naam.** Wil je een poster vervangen, upload hem dan onder een nieuwe naam (bijv. `kerstborrel-2.jpg`) en pas die naam aan in `POSTERS`. Het scherm herlaadt alleen als `index.html` verandert, en GitHub Pages bewaart afbeeldingen ongeveer tien minuten in een cache. Een afbeelding met dezelfde naam overschrijven komt dus niet, of pas veel later, op het scherm.
+
+Upload de afbeelding vóórdat je `index.html` aanpast. Een oude regel mag blijven staan, want buiten de data doet hij niets; weghalen kan ook. Hoe lang menu en poster in beeld staan, pas je aan bij `MENU_SECONDEN` en `POSTER_SECONDEN`, direct onder de lijst.
 
 ## Controleren, en terugdraaien als het misgaat
 
