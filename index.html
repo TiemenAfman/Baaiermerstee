@@ -1003,6 +1003,37 @@
             .witch, .sint, .sleigh, .fireworks, .cb .flash, .cb .smoke { display: none; }
         }
 
+        /* ── POSTER (POSTERS bovenin het script) ─────────────────────
+           Vult het hele #stage over het menubord heen. Pas als de afbeelding geladen is krijgt hij
+           .ready (anders tekent hij niet), .show laat hem infaden. Alleen opacity, geen blur. */
+        .poster {
+            position: absolute;
+            left: 0; top: 0;
+            width: 2160px;
+            height: 3840px;
+            z-index: 20;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            /* donkere houten planken in de zijbalken (gradient, dus geen extra afbeelding of blur) */
+            background:
+                repeating-linear-gradient(90deg, rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 176px, rgba(0, 0, 0, 0.45) 176px, rgba(0, 0, 0, 0.45) 182px),
+                linear-gradient(90deg, #3a2416, #2b1a10 30%, #2b1a10 70%, #3a2416);
+            pointer-events: none;
+        }
+        .poster.ready { display: block; will-change: opacity; }
+        .poster.show { opacity: 1; }
+        .poster img {
+            position: absolute;
+            left: 0; top: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .poster { transition: none; }
+        }
+
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -1342,6 +1373,9 @@
         <div class="deco gift t-sinterklaas"></div>
         <div class="deco pk t-halloween"></div>
     </footer>
+
+    <!-- Poster die met het menubord afwisselt (POSTERS in het script); de afbeelding komt er pas in als hij nodig is -->
+    <div class="poster" id="poster" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -1434,6 +1468,19 @@ const THEMES = [
     { id: 'oudennieuw',  van: '27-12', tot: '02-01' },   // over de jaargrens; op 1 januari met nieuwjaarsgroet
     { id: 'nieuwjaar',   van: '02-01', tot: '15-01' },   // gewoon bord, alleen de nieuwjaarsgroet in de lucht
 ];
+
+/* ═══════════════════════════════════════════════════════════════
+   POSTERS — een afbeelding die een tijdje met het menubord afwisselt (bijv. weekendaanbiedingen).
+   'van' = eerste dag mét poster, 'tot' = eerste dag zónder (dus exclusief), als 'jjjj-mm-dd', lokale tijd.
+   De afbeelding upload je in de map img. Staan er twee tegelijk in hun periode, dan wint de bovenste.
+   Buiten de periode wisselt er niets en wordt de afbeelding niet eens geladen.
+   Testen: ?poster (altijd wisselen) of ?poster=vast (poster blijft staan), of een datum met ?t=2026-11-07T14:00.
+   ═══════════════════════════════════════════════════════════════ */
+const POSTERS = [
+    { image: 'img/weekend-specials.jpg', van: '2026-11-07', tot: '2026-11-08' },   // alleen zaterdag 7 november
+];
+const MENU_SECONDEN = 30;     // zo lang staat het menubord in beeld
+const POSTER_SECONDEN = 10;   // zo lang staat de poster in beeld
 
 /* ═══════════════════════════════════════════════════════════════
    Locatie voor de zonnestand: dorpshuis Baaiermerstee, Bierum
@@ -2241,11 +2288,73 @@ const CHECK_MINUTES = 1;
     const skyX = az => clamp((az - 40) / 280, -0.06, 1.06) * W;
     const skyY = alt => SKY_H - (alt / 62) * (SKY_H - SUN_TOP);
 
+    /* ── Poster die met het menubord afwisselt (POSTERS bovenin) ──
+       Of er een poster actief is volgt now() (dus ?t= en ?demo), elke seconde opnieuw bepaald:
+       om middernacht stopt hij vanzelf. Het ritme van menu en poster loopt op de echte klok.
+       ?poster = altijd de eerste poster laten wisselen, ?poster=vast = poster blijft staan. */
+    const posterEl = document.getElementById('poster');
+    const posterParam = params.has('poster') ? (params.get('poster') || '').toLowerCase() : null;
+    const posterFixed = posterParam === 'vast';
+    const pad2 = n => String(n).padStart(2, '0');
+    let posterSrc = null, posterReady = false, posterStart = 0, posterFailed = 0, posterHideTimer = 0;
+
+    function posterFor(date) {
+        if (posterParam !== null) return POSTERS[0] || null;
+        const ymd = `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+        for (const p of POSTERS) if (ymd >= p.van && ymd < p.tot) return p;
+        return null;
+    }
+
+    function loadPoster(src) {
+        posterSrc = src; posterReady = false;
+        posterEl.classList.remove('show', 'ready');
+        posterEl.innerHTML = '';
+        const img = new Image();
+        img.alt = '';
+        const done = () => {
+            if (posterSrc !== src) return;
+            posterEl.appendChild(img);
+            posterEl.classList.add('ready');
+            posterReady = true;
+            posterStart = Date.now();                           /* eerst MENU_SECONDEN het menu */
+        };
+        img.onload = () => { if (img.decode) img.decode().then(done, done); else done(); };
+        img.onerror = () => { if (posterSrc === src) { posterSrc = null; posterFailed = Date.now(); } };
+        img.src = src;
+    }
+
+    function updatePoster(t) {
+        const p = posterFor(t);
+        if (!p) {
+            if (posterSrc) {                                    /* periode voorbij: uitfaden en opruimen */
+                posterSrc = null; posterReady = false;
+                posterEl.classList.remove('show');
+                clearTimeout(posterHideTimer);
+                posterHideTimer = setTimeout(() => {
+                    if (posterSrc) return;
+                    posterEl.classList.remove('ready');
+                    posterEl.innerHTML = '';
+                }, 1500);
+            }
+            return;
+        }
+        if (p.image !== posterSrc) {
+            if (Date.now() - posterFailed < 60000) return;      /* laden mislukt: over een minuut opnieuw */
+            clearTimeout(posterHideTimer);
+            loadPoster(p.image);
+        }
+        if (!posterReady) return;
+        const cycle = (MENU_SECONDEN + POSTER_SECONDEN) * 1000;
+        const show = posterFixed || (Date.now() - posterStart) % cycle >= MENU_SECONDEN * 1000;
+        posterEl.classList.toggle('show', show);
+    }
+
     let lastSkyMinute = -1;
     function render() {
         const t = now();
         timeEl.textContent = fmtTime(t);
         applyTheme(themeFor(t));            /* wisselt om middernacht vanzelf, ook bij ?t= en ?demo */
+        updatePoster(t);
 
         const minute = Math.floor(t.getTime() / 60000);
         if (minute === lastSkyMinute && mode !== 'demo') return;
