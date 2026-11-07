@@ -49,7 +49,7 @@ De regels voor het menu:
 
 ## Een poster laten afwisselen met het menu
 
-Een poster, bijvoorbeeld met weekendaanbiedingen, kan een paar dagen met het menu afwisselen: het menu staat 30 seconden in beeld, de poster 10 seconden. Na de laatste dag is het om middernacht vanzelf weer alleen het menu.
+Een poster, bijvoorbeeld met weekendaanbiedingen, kan een paar dagen met het menu afwisselen: het menu staat 20 seconden in beeld, de poster 10 seconden. Na de laatste dag is het om middernacht vanzelf weer alleen het menu.
 
 1. Maak de poster staand, het liefst in de verhouding van het scherm (bijv. 1080 × 1920 pixels of groter), als `.jpg` of `.png`.
 2. Ga op GitHub naar de map `img`, klik op "Add file" → "Upload files", sleep de afbeelding erin en klik op "Commit changes". Gebruik een korte bestandsnaam in kleine letters en zonder spaties, bijv. `kerstborrel.jpg`.

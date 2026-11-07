@@ -54,7 +54,7 @@ Het thema volgt verder vanzelf de datum uit `?t=` of `?demo`, dus `?t=2026-10-20
 
 ## Poster (tijdelijke afwisseling met het menu)
 
-- **Config**: `POSTERS` bovenin `<script>`, vlak na `THEMES`. Per poster `{ image, van, tot }`, met `image` een pad in `img/` en `van`/`tot` als `'jjjj-mm-dd'`, lokale tijd (`tot` exclusief). Bij overlap wint de bovenste. `MENU_SECONDEN` (30) en `POSTER_SECONDEN` (10) bepalen het ritme.
+- **Config**: `POSTERS` bovenin `<script>`, vlak na `THEMES`. Per poster `{ image, van, tot }`, met `image` een pad in `img/` en `van`/`tot` als `'jjjj-mm-dd'`, lokale tijd (`tot` exclusief). Bij overlap wint de bovenste. `MENU_SECONDEN` (20) en `POSTER_SECONDEN` (10) bepalen het ritme.
 - **Werking**: `render()` roept elke seconde `updatePoster(now())` aan, dus `?t=` en `?demo` doen mee en de poster stopt om middernacht vanzelf (uitfaden, daarna `display: none` en de `<img>` weg). Buiten de periode doet de functie niets en wordt de afbeelding niet geladen. Het ritme zelf loopt op de echte klok (`Date.now()`), ook bij een vaste `?t=`.
 - **Laden**: de `<img>` wordt pas gemaakt als er een poster actief is. Pas na `onload` + `decode()` krijgt `.poster` de klasse `ready` (`display: block`), dan eerst `MENU_SECONDEN` het menu en daarna infaden met `.show` (crossfade van 1 s, alleen `opacity`). Mislukt het laden, dan na een minuut opnieuw.
 - **Opbouw**: de `<img>` met `object-fit: contain` op volle hoogte; in de zijbalken donkere houten planken als CSS-gradient op `.poster` (geen tweede afbeelding, geen blur). Klok, lucht en thema's lopen eronder gewoon door.
