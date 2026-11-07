@@ -8,7 +8,7 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 
 - Live: `https://tiemenafman.github.io/Baaiermerstee/`
 - Branch: `main` (GitHub Pages deployt vanaf `main`, map `/`)
-- Na elke wijziging: `git add index.html && git commit -m "..." && git push`
+- Na elke wijziging: `git add index.html && git commit -m "..." && git push` (posterafbeeldingen staan in `img/`; die moeten mee)
 - De pagina controleert elke `CHECK_MINUTES` minuten (nu 1) stil op de achtergrond of `index.html` op de server is veranderd en herlaadt alleen dan, dus geen geflits; `0` schakelt de controle uit. Pas na twee opeenvolgende checks met dezelfde nieuwe inhoud wordt er herladen (voorkomt een herlaad op een eenmalige CDN-hik)
 - Voor een Raspberry Pi met FullPageOS als alternatief scherm: zie `wifi-setup.md`
 
@@ -30,6 +30,8 @@ Narrowcasting-menubord voor dorpshuis Baaiermerstee in Bierum (Groningen). Één
 | `?rotate=0` / `90` / `180` / `270` | Vaste draaiing, bijv. `270` als het beeld ondersteboven staat |
 | `?debug` | Toont viewport, schaal en user-agent op het scherm, handig bij het instellen van het display |
 | `?theme=halloween` / `sinterklaas` / `kerst` / `oudennieuw` / `nieuwjaar` / `none` | Vast thema, of `none` voor het gewone bord, los van de datum (combineer met `?t=` voor dag of nacht) |
+| `?poster` | De eerste poster uit `POSTERS` wisselt altijd met het menu, los van zijn periode |
+| `?poster=vast` | De eerste poster blijft stil in beeld staan |
 
 Het thema volgt verder vanzelf de datum uit `?t=` of `?demo`, dus `?t=2026-10-20T21:00` toont Halloween bij nacht.
 
@@ -48,6 +50,15 @@ Het thema volgt verder vanzelf de datum uit `?t=` of `?demo`, dus `?t=2026-10-20
    - `SNACK_VAN_DE_MAAND` = optionele kaart bovenin de linkerkolom, `EVENT` = de Noaberschap-kaart onderin de linkerkolom (`show: false` verbergt elk apart)
 4. **Voet** (`.foot`, 3660–3840 px): "Waar jong en oud elkaar ontmoeten!"
 5. **Thema's**: een seizoenslaag over het gewone bord, die op datum aangaat (zie hieronder)
+6. **Poster** (`.poster`, over het hele `#stage`, `z-index: 20`): een afbeelding die tijdelijk met het menubord afwisselt (zie hieronder)
+
+## Poster (tijdelijke afwisseling met het menu)
+
+- **Config**: `POSTERS` bovenin `<script>`, vlak na `THEMES`. Per poster `{ image, van, tot }`, met `image` een pad in `img/` en `van`/`tot` als `'jjjj-mm-dd'`, lokale tijd (`tot` exclusief). Bij overlap wint de bovenste. `MENU_SECONDEN` (30) en `POSTER_SECONDEN` (10) bepalen het ritme.
+- **Werking**: `render()` roept elke seconde `updatePoster(now())` aan, dus `?t=` en `?demo` doen mee en de poster stopt om middernacht vanzelf (uitfaden, daarna `display: none` en de `<img>` weg). Buiten de periode doet de functie niets en wordt de afbeelding niet geladen. Het ritme zelf loopt op de echte klok (`Date.now()`), ook bij een vaste `?t=`.
+- **Laden**: de `<img>` wordt pas gemaakt als er een poster actief is. Pas na `onload` + `decode()` krijgt `.poster` de klasse `ready` (`display: block`), dan eerst `MENU_SECONDEN` het menu en daarna infaden met `.show` (crossfade van 1 s, alleen `opacity`). Mislukt het laden, dan na een minuut opnieuw.
+- **Opbouw**: de `<img>` met `object-fit: contain` op volle hoogte; in de zijbalken donkere houten planken als CSS-gradient op `.poster` (geen tweede afbeelding, geen blur). Klok, lucht en thema's lopen eronder gewoon door.
+- Een staande poster van ongeveer 9:16 (bijv. 1080 × 1920 of groter) vult het scherm het best; de weekendposter van 685 × 1544 wordt zo'n 2,5 keer vergroot.
 
 ## Thema's (seizoensversiering op datum)
 
