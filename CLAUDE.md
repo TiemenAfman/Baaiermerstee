@@ -47,7 +47,7 @@ Het thema volgt verder vanzelf de datum uit `?t=` of `?demo`, dus `?t=2026-10-20
 3. **Menubord** (`.board`, 600–3660 px): twee kolommen met kaarten, opgebouwd uit `MENU` in het script
    - Kaarten groeien naar rato van hun aantal regels (`flex-grow`), zodat beide kolommen gelijk uitkomen
    - `fitRows()` verkleint te lange namen tot ze op één regel passen
-   - `SNACK_VAN_DE_MAAND` = optionele kaart bovenin de linkerkolom, `EVENT` = de Noaberschap-kaart onderin de linkerkolom (`show: false` verbergt elk apart)
+   - `SNACK_VAN_DE_WEEK` = optionele kaart bovenin de linkerkolom, `EVENT` = de Noaberschap-kaart onderin de linkerkolom (`show: false` verbergt elk apart)
 4. **Voet** (`.foot`, 3660–3840 px): "Waar jong en oud elkaar ontmoeten!"
 5. **Thema's**: een seizoenslaag over het gewone bord, die op datum aangaat (zie hieronder)
 6. **Poster** (`.poster`, over het hele `#stage`, `z-index: 20`): een afbeelding die tijdelijk met het menubord afwisselt (zie hieronder)
@@ -95,7 +95,7 @@ Let op: een CSS-animatie op een element binnen een verborgen SVG-groep (`<g clas
 
 ## Menu aanpassen
 
-Alles staat in het `MENU`-object bovenin `<script>`. Een item is `[naam, prijs]` of `[naam, prijs, toelichting]`, bijvoorbeeld `['Kipnuggets', '2,50', '6 stuks']`. Nieuwe secties: een object `{ title, items }` toevoegen aan `left` of `right`; de kolomhoogte verdeelt zichzelf. `SNACK_VAN_DE_MAAND` en `EVENT` (vlak erna in het script) zijn losse kaarten met dezelfde `show`-vlag.
+Alles staat in het `MENU`-object bovenin `<script>`. Een item is `[naam, prijs]` of `[naam, prijs, toelichting]`, bijvoorbeeld `['Kipnuggets', '2,50', '6 stuks']`. Nieuwe secties: een object `{ title, items }` toevoegen aan `left` of `right`; de kolomhoogte verdeelt zichzelf. `SNACK_VAN_DE_WEEK` en `EVENT` (vlak erna in het script) zijn losse kaarten met dezelfde `show`-vlag.
 
 ## Ontwerprichtlijnen
 

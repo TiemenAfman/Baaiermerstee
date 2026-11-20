@@ -44,7 +44,7 @@ De regels voor het menu:
 - Elke regel eindigt op `],`. Een vergeten komma of aanhalingsteken maakt het hele bord kapot (zie hieronder).
 - Een apostrof in een naam (zoals in pinda's) breekt de tekst af. Schrijf dan `\'`, dus `'Pinda\'s'`.
 - Een nieuwe sectie is een blok `{ title: 'IJs', items: [ ... ] },` in `left` (linkerkolom) of `right` (rechterkolom). De kolommen verdelen de ruimte zelf.
-- De kaart "Samen eten" staat iets lager onder `const EVENT`; met `show: false` verdwijnt hij. Onder `const SNACK_VAN_DE_MAAND` staat een kaart die je met `show: true` bovenin de linkerkolom zet.
+- De kaart "Samen eten" staat iets lager onder `const EVENT`; met `show: false` verdwijnt hij. Onder `const SNACK_VAN_DE_WEEK` staat een kaart die je met `show: true` bovenin de linkerkolom zet.
 - Alles onder het kopje "Locatie voor de zonnestand" is programmacode: daar niets aanpassen.
 
 ## Een poster laten afwisselen met het menu
